@@ -48,7 +48,7 @@ func TestSplitSlice(t *testing.T) {
 	for _, example := range dataset {
 		result := SplitSlice(example.Input, example.BatchSize)
 
-		if equalMaps(result, example.Output) {
+		if equalSliceOfSlices(result, example.Output) {
 			t.Logf("Test passed (Input: %v, output: %v, batchSize: %v)\n", example.Input, result, example.BatchSize)
 		} else {
 			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v, batchSize: %v)\n", example.Input, example.Output, result, example.BatchSize)
@@ -56,7 +56,7 @@ func TestSplitSlice(t *testing.T) {
 	}
 }
 
-func equalMaps(first [][]uint, second [][]uint) bool {
+func equalSliceOfSlices(first [][]uint, second [][]uint) bool {
 
 	if len(first) != len(second) {
 		return false
