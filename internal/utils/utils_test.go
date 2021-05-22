@@ -76,3 +76,69 @@ func equalMaps(first [][]uint, second [][]uint) bool {
 
 	return true
 }
+
+func TestFilterSlice(t *testing.T) {
+	type Dataset struct {
+		Input  []uint
+		Filter []uint
+		Output []uint
+	}
+
+	dataset := []Dataset{
+		{
+			Input:  []uint{1, 2, 3, 4, 5},
+			Filter: []uint{1, 2},
+			Output: []uint{3, 4, 5},
+		},
+		{
+			Input:  []uint{1, 2, 3, 4, 5},
+			Filter: []uint{11, 22},
+			Output: []uint{1, 2, 3, 4, 5},
+		},
+		{
+			Input:  nil,
+			Filter: []uint{11, 22},
+			Output: nil,
+		},
+		{
+			Input:  []uint{1, 2, 3, 4, 5},
+			Filter: nil,
+			Output: []uint{1, 2, 3, 4, 5},
+		},
+		{
+			Input:  nil,
+			Filter: nil,
+			Output: nil,
+		},
+		{
+			Input:  []uint{1, 2, 3},
+			Filter: []uint{1, 2, 3, 4, 5},
+			Output: nil,
+		},
+	}
+
+	for _, example := range dataset {
+		result := FilterSlice(example.Input, example.Filter)
+
+		if equalSlices(result, example.Output) {
+			t.Logf("Test passed (Input: %v, output: %v, filter: %v)\n", example.Input, result, example.Filter)
+		} else {
+			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v, filter: %v)\n", example.Input, example.Output, result, example.Filter)
+		}
+	}
+}
+
+func equalSlices(first []uint, second []uint) bool {
+
+	if len(first) != len(second) {
+		return false
+	}
+
+	for i, val := range first {
+		if val != second[i] {
+			return false
+		}
+	}
+
+	return true
+}
