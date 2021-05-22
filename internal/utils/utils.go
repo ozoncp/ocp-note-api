@@ -1,6 +1,6 @@
 package utils
 
-func SplitSlice(slice []int, batchSize int) [][]int {
+func SplitSlice(slice []uint, batchSize int) [][]uint {
 
 	if batchSize <= 0 || slice == nil {
 		return nil
@@ -14,7 +14,7 @@ func SplitSlice(slice []int, batchSize int) [][]int {
 		numberOfBatches = len(slice)/batchSize + 1
 	}
 
-	sliceOfBatches := make([][]int, 0, numberOfBatches)
+	sliceOfBatches := make([][]uint, 0, numberOfBatches)
 
 	for i := 0; i < len(slice); {
 		end := i + batchSize
