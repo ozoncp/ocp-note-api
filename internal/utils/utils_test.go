@@ -1,7 +1,7 @@
 package utils_test
 
 import ("fmt"
-		"https://github.com/ozoncp/ocp-note-api/internal/utils")
+		"github.com/ozoncp/ocp-note-api/internal/utils")
 
 func AllTest() {
 	SplitSliceTest()
