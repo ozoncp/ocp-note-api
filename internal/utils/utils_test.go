@@ -99,8 +99,10 @@ func TestSwapKeyAndValue(t *testing.T) {
 	}
 
 	defer func() {
-		if r := recover(); r != nil {
-			t.Logf("Recovered \"TestSwapKeyAndValue\" after panic")
+		if r := recover(); r == nil {
+			t.Logf("The test did not panic")
+		} else {
+			t.Logf("The test did panic")
 		}
 	}()
 
