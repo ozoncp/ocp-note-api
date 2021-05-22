@@ -22,3 +22,22 @@ func SplitSlice(slice []int, batchSize int) [][]int {
 
 	return sliceOfBatches
 }
+
+func SwapKeyAndValue(data map[uint]string) map[string]uint {
+
+	if data == nil {
+		return nil
+	}
+
+	modifiedData := make(map[string]uint)
+
+	for key, val := range data {
+		if _, found := modifiedData[val]; found {
+			panic("Key \"" + val + "\" already exists")
+		}
+
+		modifiedData[val] = key
+	}
+
+	return modifiedData
+}
