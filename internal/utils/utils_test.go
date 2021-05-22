@@ -77,6 +77,63 @@ func equalSliceOfSlices(first [][]uint, second [][]uint) bool {
 	return true
 }
 
+func TestSwapKeyAndValue(t *testing.T) {
+	type Dataset struct {
+		Input  map[uint]string
+		Output map[string]uint
+	}
+
+	dataset := []Dataset{
+		{
+			Input:  map[uint]string{1: "hex", 2: "mex", 3: "lex", 4: "zhex", 5: "chpex"},
+			Output: map[string]uint{"hex": 1, "mex": 2, "lex": 3, "zhex": 4, "chpex": 5},
+		},
+		{
+			Input:  nil,
+			Output: nil,
+		},
+		{
+			Input:  map[uint]string{1: "lex", 2: "lex", 3: "lex", 4: "zhex", 5: "chpex"},
+			Output: nil,
+		},
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Logf("Recovered \"TestSwapKeyAndValue\" after panic")
+		}
+	}()
+
+	for _, example := range dataset {
+		result := SwapKeyAndValue(example.Input)
+
+		if equalMaps(result, example.Output) {
+			t.Logf("Test passed (Input: %v, output: %v)\n", example.Input, result)
+		} else {
+			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v)\n", example.Input, example.Output, result)
+		}
+	}
+}
+
+func equalMaps(first map[string]uint, second map[string]uint) bool {
+
+	if len(first) != len(second) {
+		return false
+	}
+
+	for key, val := range first {
+		if valFromSecond, found := second[key]; !found {
+			return false
+		} else {
+			if val != valFromSecond {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func TestFilterSlice(t *testing.T) {
 	type Dataset struct {
 		Input  []uint
