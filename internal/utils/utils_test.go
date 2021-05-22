@@ -1,16 +1,10 @@
-package utils_test
+package utils
 
 import (
-	"fmt"
-
-	"github.com/ozoncp/ocp-note-api/internal/utils"
+	"testing"
 )
 
-func AllTest() {
-	SplitSliceTest()
-}
-
-func SplitSliceTest() {
+func TestSplitSlice(t *testing.T) {
 
 	type Dataset struct {
 		BatchSize int
@@ -51,20 +45,18 @@ func SplitSliceTest() {
 		},
 	}
 
-	fmt.Println("*Split Slice Test*")
-
 	for _, example := range dataset {
-		result := utils.SplitSlice(example.Input, example.BatchSize)
+		result := SplitSlice(example.Input, example.BatchSize)
 
-		if EqualSlices(result, example.Output) {
-			fmt.Printf("Test passed (Input: %v, output: %v, batchSize: %v)\n", example.Input, result, example.BatchSize)
+		if equalSlices(result, example.Output) {
+			t.Logf("Test passed (Input: %v, output: %v, batchSize: %v)\n", example.Input, result, example.BatchSize)
 		} else {
-			fmt.Printf("Test failed (Input: %v, expected output: %v, output: %v, batchSize: %v)\n", example.Input, example.Output, result, example.BatchSize)
+			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v, batchSize: %v)\n", example.Input, example.Output, result, example.BatchSize)
 		}
 	}
 }
 
-func EqualSlices(first [][]int, second [][]int) bool {
+func equalSlices(first [][]int, second [][]int) bool {
 
 	if len(first) != len(second) {
 		return false
@@ -83,4 +75,30 @@ func EqualSlices(first [][]int, second [][]int) bool {
 	}
 
 	return true
+}
+
+func SwapKeyAndValueTest() {
+
+	// type Dataset struct {
+	// 	Input  [uint]string
+	// 	Output [string]uint
+	// }
+
+	// dataset := []Dataset{[uint]string{1: "hex", 2: "mex"}, [string]uint{"hex"}}
+
+	// dataset := []Dataset{
+	// 	{
+	// 		Input:  []int{1, 2, 3, 4, 5, 6},
+	// 		Output: [][]int{{1, 2}, {3, 4}, {5, 6}},
+	// 	},
+	// 	{
+	// 		Input:  []int{1, 2, 3, 4, 5, 6},
+	// 		Output: [][]int{{1, 2}, {3, 4}, {5, 6}},
+	// 	},
+	// 	{
+	// 		Input:  nil,
+	// 		Output: nil,
+	// 	},
+	// }
+
 }
