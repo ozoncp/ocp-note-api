@@ -14,10 +14,17 @@ func SplitSlice(slice []int, batchSize int) [][]int {
 		numberOfBatches = len(slice)/batchSize + 1
 	}
 
-	sliceOfBatches := make([][]int, numberOfBatches)
+	sliceOfBatches := make([][]int, 0, numberOfBatches)
 
-	for i := 0; i < len(slice); i++ {
-		sliceOfBatches[i/batchSize] = append(sliceOfBatches[i/batchSize], slice[i])
+	for i := 0; i < len(slice); {
+		end := i + batchSize
+
+		if end > len(slice) {
+			end = len(slice)
+		}
+
+		sliceOfBatches = append(sliceOfBatches, slice[i:end])
+		i = end
 	}
 
 	return sliceOfBatches
