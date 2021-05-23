@@ -36,30 +36,30 @@ func SplitSlice(slice []uint, batchSize int) [][]uint {
 	return sliceOfBatches
 }
 
-func SplitNoteSlice(slice []note.Note, batchSize int) [][]note.Note {
+func SplitNoteSlice(data []note.Note, batchSize int) [][]note.Note {
 
-	if batchSize <= 0 || slice == nil {
+	if batchSize <= 0 || data == nil {
 		return nil
 	}
 
 	var numberOfBatches int
 
-	if len(slice)%batchSize == 0 {
-		numberOfBatches = len(slice) / batchSize
+	if len(data)%batchSize == 0 {
+		numberOfBatches = len(data) / batchSize
 	} else {
-		numberOfBatches = len(slice)/batchSize + 1
+		numberOfBatches = len(data)/batchSize + 1
 	}
 
 	sliceOfBatches := make([][]note.Note, 0, numberOfBatches)
 
-	for i := 0; i < len(slice); {
+	for i := 0; i < len(data); {
 		end := i + batchSize
 
-		if end > len(slice) {
-			end = len(slice)
+		if end > len(data) {
+			end = len(data)
 		}
 
-		sliceOfBatches = append(sliceOfBatches, slice[i:end])
+		sliceOfBatches = append(sliceOfBatches, data[i:end])
 		i = end
 	}
 
@@ -85,10 +85,10 @@ func SwapKeyAndValue(data map[uint]string) map[string]uint {
 	return modifiedData
 }
 
-func FilterSlice(slice []uint, filter []uint) []uint {
+func FilterSlice(data []uint, filter []uint) []uint {
 	var result []uint
 
-	for _, val := range slice {
+	for _, val := range data {
 		if !containsValueInSlice(filter, val) {
 			result = append(result, val)
 		}
@@ -97,10 +97,10 @@ func FilterSlice(slice []uint, filter []uint) []uint {
 	return result
 }
 
-func containsValueInSlice(slice []uint, value uint) bool {
-	uniqValues := make(map[uint]struct{}, len(slice))
+func containsValueInSlice(data []uint, value uint) bool {
+	uniqValues := make(map[uint]struct{}, len(data))
 
-	for _, val := range slice {
+	for _, val := range data {
 		uniqValues[val] = struct{}{}
 	}
 
@@ -108,15 +108,15 @@ func containsValueInSlice(slice []uint, value uint) bool {
 	return found
 }
 
-func ConvertSliceToMap(slice []note.Note) (map[uint]note.Note, error) {
+func ConvertSliceToMap(data []note.Note) (map[uint]note.Note, error) {
 
-	if len(slice) == 0 {
+	if len(data) == 0 {
 		return nil, errors.New("The slice is empty")
 	}
 
 	modifiedData := make(map[uint]note.Note)
 
-	for _, val := range slice {
+	for _, val := range data {
 		if _, found := modifiedData[val.Id]; found {
 			return nil, errors.New("The key already exists")
 		}
