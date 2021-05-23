@@ -1,6 +1,10 @@
 package utils
 
-import "github.com/ozoncp/ocp-note-api/core/note"
+import (
+	"errors"
+
+	"github.com/ozoncp/ocp-note-api/core/note"
+)
 
 func SplitSlice(slice []uint, batchSize int) [][]uint {
 
@@ -102,4 +106,23 @@ func containsValueInSlice(slice []uint, value uint) bool {
 
 	_, found := uniqValues[value]
 	return found
+}
+
+func ConvertSliceToMap(slice []note.Note) (map[uint]note.Note, error) {
+
+	if len(slice) == 0 {
+		return nil, errors.New("The slice is empty")
+	}
+
+	modifiedData := make(map[uint]note.Note)
+
+	for _, val := range slice {
+		if _, found := modifiedData[val.Id]; found {
+			return nil, errors.New("The key already exists")
+		}
+
+		modifiedData[val.Id] = val
+	}
+
+	return modifiedData, nil
 }
