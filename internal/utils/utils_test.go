@@ -263,3 +263,64 @@ func equalSlices(first []uint, second []uint) bool {
 
 	return true
 }
+
+func TestConvertSliceToMap(t *testing.T) {
+
+	type Dataset struct {
+		BatchSize int
+		Input     []note.Note
+		Output    map[uint]note.Note
+	}
+
+	dataset := []Dataset{
+		{
+			BatchSize: 2,
+			Input: []note.Note{
+				{Id: 1, UserId: 2, ClassroomId: 3, DocumentId: 4},
+				{Id: 5, UserId: 6, ClassroomId: 7, DocumentId: 8},
+				{Id: 9, UserId: 10, ClassroomId: 11, DocumentId: 12},
+				{Id: 13, UserId: 14, ClassroomId: 15, DocumentId: 16},
+				{Id: 17, UserId: 18, ClassroomId: 19, DocumentId: 20},
+			},
+			Output: map[uint]note.Note{
+				1:  {Id: 1, UserId: 2, ClassroomId: 3, DocumentId: 4},
+				5:  {Id: 5, UserId: 6, ClassroomId: 7, DocumentId: 8},
+				9:  {Id: 9, UserId: 10, ClassroomId: 11, DocumentId: 12},
+				13: {Id: 13, UserId: 14, ClassroomId: 15, DocumentId: 16},
+				17: {Id: 17, UserId: 18, ClassroomId: 19, DocumentId: 20},
+			},
+		},
+	}
+
+	for _, example := range dataset {
+		result, _ := ConvertSliceToMap(example.Input)
+
+		if equalNoteMaps(result, example.Output) {
+			t.Logf("Test passed (Input: %v, output: %v, batchSize: %v)\n", example.Input, result, example.BatchSize)
+		} else {
+			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v, batchSize: %v)\n", example.Input, example.Output, result, example.BatchSize)
+		}
+	}
+}
+
+func equalNoteMaps(first map[uint]note.Note, second map[uint]note.Note) bool {
+
+	if len(first) != len(second) {
+		return false
+	}
+
+	for key, val := range first {
+		if valFromSecond, found := second[key]; !found {
+			return false
+		} else {
+			if val.Id != valFromSecond.Id ||
+				val.UserId != valFromSecond.UserId ||
+				val.ClassroomId != valFromSecond.ClassroomId ||
+				val.DocumentId != val.DocumentId {
+				return false
+			}
+		}
+	}
+
+	return true
+}
