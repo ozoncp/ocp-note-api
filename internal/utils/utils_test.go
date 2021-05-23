@@ -2,6 +2,8 @@ package utils
 
 import (
 	"testing"
+
+	"github.com/ozoncp/ocp-note-api/core/note"
 )
 
 func TestSplitSlice(t *testing.T) {
@@ -69,6 +71,66 @@ func equalSliceOfSlices(first [][]uint, second [][]uint) bool {
 
 		for j, val := range slice {
 			if val != second[i][j] {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func TestSplitNoteSlice(t *testing.T) {
+
+	type Dataset struct {
+		BatchSize int
+		Input     []note.Note
+		Output    [][]note.Note
+	}
+
+	dataset := []Dataset{
+		{
+			BatchSize: 2,
+			Input: []note.Note{
+				{Id: 1, UserId: 2, ClassroomId: 3, DocumentId: 4},
+				{Id: 5, UserId: 6, ClassroomId: 7, DocumentId: 8},
+				{Id: 9, UserId: 10, ClassroomId: 11, DocumentId: 12},
+				{Id: 13, UserId: 14, ClassroomId: 15, DocumentId: 16},
+				{Id: 17, UserId: 18, ClassroomId: 19, DocumentId: 20},
+			},
+			Output: [][]note.Note{
+				{{Id: 1, UserId: 2, ClassroomId: 3, DocumentId: 4}, {Id: 5, UserId: 6, ClassroomId: 7, DocumentId: 8}},
+				{{Id: 9, UserId: 10, ClassroomId: 11, DocumentId: 12}, {Id: 13, UserId: 14, ClassroomId: 15, DocumentId: 16}},
+				{{Id: 17, UserId: 18, ClassroomId: 19, DocumentId: 20}}},
+		},
+	}
+
+	for _, example := range dataset {
+		result := SplitNoteSlice(example.Input, example.BatchSize)
+
+		if equalNoteSliceOfSlices(result, example.Output) {
+			t.Logf("Test passed (Input: %v, output: %v, batchSize: %v)\n", example.Input, result, example.BatchSize)
+		} else {
+			t.Errorf("Test failed (Input: %v, expected output: %v, output: %v, batchSize: %v)\n", example.Input, example.Output, result, example.BatchSize)
+		}
+	}
+}
+
+func equalNoteSliceOfSlices(first [][]note.Note, second [][]note.Note) bool {
+
+	if len(first) != len(second) {
+		return false
+	}
+
+	for i, slice := range first {
+		if len(slice) != len(second[i]) {
+			return false
+		}
+
+		for j, val := range slice {
+			if val.Id != second[i][j].Id ||
+				val.UserId != second[i][j].UserId ||
+				val.ClassroomId != second[i][j].ClassroomId ||
+				val.DocumentId != second[i][j].DocumentId {
 				return false
 			}
 		}
