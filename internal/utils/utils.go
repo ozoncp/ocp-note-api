@@ -1,5 +1,7 @@
 package utils
 
+import "github.com/ozoncp/ocp-note-api/core/note"
+
 func SplitSlice(slice []uint, batchSize int) [][]uint {
 
 	if batchSize <= 0 || slice == nil {
@@ -15,6 +17,36 @@ func SplitSlice(slice []uint, batchSize int) [][]uint {
 	}
 
 	sliceOfBatches := make([][]uint, 0, numberOfBatches)
+
+	for i := 0; i < len(slice); {
+		end := i + batchSize
+
+		if end > len(slice) {
+			end = len(slice)
+		}
+
+		sliceOfBatches = append(sliceOfBatches, slice[i:end])
+		i = end
+	}
+
+	return sliceOfBatches
+}
+
+func SplitNoteSlice(slice []note.Note, batchSize int) [][]note.Note {
+
+	if batchSize <= 0 || slice == nil {
+		return nil
+	}
+
+	var numberOfBatches int
+
+	if len(slice)%batchSize == 0 {
+		numberOfBatches = len(slice) / batchSize
+	} else {
+		numberOfBatches = len(slice)/batchSize + 1
+	}
+
+	sliceOfBatches := make([][]note.Note, 0, numberOfBatches)
 
 	for i := 0; i < len(slice); {
 		end := i + batchSize
