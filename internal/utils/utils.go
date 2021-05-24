@@ -6,30 +6,30 @@ import (
 	"github.com/ozoncp/ocp-note-api/core/note"
 )
 
-func SplitSlice(slice []uint, batchSize int) [][]uint {
+func SplitSlice(data []uint, batchSize int) [][]uint {
 
-	if batchSize <= 0 || slice == nil {
+	if batchSize <= 0 || data == nil {
 		return nil
 	}
 
 	var numberOfBatches int
 
-	if len(slice)%batchSize == 0 {
-		numberOfBatches = len(slice) / batchSize
+	if len(data)%batchSize == 0 {
+		numberOfBatches = len(data) / batchSize
 	} else {
-		numberOfBatches = len(slice)/batchSize + 1
+		numberOfBatches = len(data)/batchSize + 1
 	}
 
 	sliceOfBatches := make([][]uint, 0, numberOfBatches)
 
-	for i := 0; i < len(slice); {
+	for i := 0; i < len(data); {
 		end := i + batchSize
 
-		if end > len(slice) {
-			end = len(slice)
+		if end > len(data) {
+			end = len(data)
 		}
 
-		sliceOfBatches = append(sliceOfBatches, slice[i:end])
+		sliceOfBatches = append(sliceOfBatches, data[i:end])
 		i = end
 	}
 
@@ -72,7 +72,7 @@ func SwapKeyAndValue(data map[uint]string) map[string]uint {
 		return nil
 	}
 
-	modifiedData := make(map[string]uint)
+	modifiedData := make(map[string]uint, len(data))
 
 	for key, val := range data {
 		if _, found := modifiedData[val]; found {
@@ -114,7 +114,7 @@ func ConvertSliceToMap(data []note.Note) (map[uint]note.Note, error) {
 		return nil, errors.New("The slice is empty")
 	}
 
-	modifiedData := make(map[uint]note.Note)
+	modifiedData := make(map[uint]note.Note, len(data))
 
 	for _, val := range data {
 		if _, found := modifiedData[val.Id]; found {
