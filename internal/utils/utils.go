@@ -76,7 +76,7 @@ func SwapKeyAndValue(data map[uint]string) map[string]uint {
 
 	for key, val := range data {
 		if _, found := modifiedData[val]; found {
-			panic("Key \"" + val + "\" already exists")
+			panic("key \"" + val + "\" already exists")
 		}
 
 		modifiedData[val] = key
@@ -111,14 +111,14 @@ func containsValueInSlice(data []uint, value uint) bool {
 func ConvertSliceToMap(data []note.Note) (map[uint]note.Note, error) {
 
 	if len(data) == 0 {
-		return nil, errors.New("The slice is empty")
+		return nil, errors.New("the slice is empty")
 	}
 
 	modifiedData := make(map[uint]note.Note, len(data))
 
 	for _, val := range data {
 		if _, found := modifiedData[val.Id]; found {
-			return nil, errors.New("The key already exists")
+			return nil, errors.New("the key already exists")
 		}
 
 		modifiedData[val.Id] = val
