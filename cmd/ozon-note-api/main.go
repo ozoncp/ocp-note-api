@@ -20,7 +20,7 @@ func main() {
 
 		fmt.Printf("%d iteration\n", i)
 
-		handle := func() {
+		func() {
 			f, err := os.Open("test.txt")
 			checkError(err)
 
@@ -37,9 +37,7 @@ func main() {
 				fmt.Println("File closed")
 				f.Close()
 			}()
-		}
-
-		handle()
+		}()
 	}
 }
 
