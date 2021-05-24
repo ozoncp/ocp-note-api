@@ -17,15 +17,15 @@ func (n *Note) Init(id uint, userId uint, classroomId uint, documentId uint) {
 }
 
 func (n *Note) Create() {
-	fmt.Println("Note created")
+	fmt.Printf("Note '%d' created", n.Id)
 }
 
 func (n *Note) Delete() {
-	fmt.Println("Note deleted")
+	fmt.Printf("Note '%d' deleted", n.Id)
 }
 
 func (n *Note) Change() {
-	fmt.Println("Note changed")
+	fmt.Printf("Note '%d' changed", n.Id)
 }
 
 func (n *Note) String() {
