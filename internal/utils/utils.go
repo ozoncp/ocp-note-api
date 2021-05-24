@@ -88,8 +88,14 @@ func SwapKeyAndValue(data map[uint]string) map[string]uint {
 func FilterSlice(data []uint, filter []uint) []uint {
 	var result []uint
 
+	uniqValues := make(map[uint]struct{}, len(data))
+
+	for _, val := range filter {
+		uniqValues[val] = struct{}{}
+	}
+
 	for _, val := range data {
-		if !containsValueInSlice(filter, val) {
+		if !containsValueInSlice(uniqValues, val) {
 			result = append(result, val)
 		}
 	}
@@ -97,14 +103,8 @@ func FilterSlice(data []uint, filter []uint) []uint {
 	return result
 }
 
-func containsValueInSlice(data []uint, value uint) bool {
-	uniqValues := make(map[uint]struct{}, len(data))
-
-	for _, val := range data {
-		uniqValues[val] = struct{}{}
-	}
-
-	_, found := uniqValues[value]
+func containsValueInSlice(data map[uint]struct{}, value uint) bool {
+	_, found := data[value]
 	return found
 }
 
