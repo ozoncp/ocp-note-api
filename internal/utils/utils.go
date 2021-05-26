@@ -108,13 +108,13 @@ func containsValueInSlice(data map[uint]struct{}, value uint) bool {
 	return found
 }
 
-func ConvertSliceToMap(data []note.Note) (map[uint]note.Note, error) {
+func ConvertSliceToMap(data []note.Note) (map[uint64]note.Note, error) {
 
 	if len(data) == 0 {
 		return nil, errors.New("the slice is empty")
 	}
 
-	modifiedData := make(map[uint]note.Note, len(data))
+	modifiedData := make(map[uint64]note.Note, len(data))
 
 	for _, val := range data {
 		if _, found := modifiedData[val.Id]; found {

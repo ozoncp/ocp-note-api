@@ -3,13 +3,13 @@ package note
 import "fmt"
 
 type Note struct {
-	Id          uint
+	Id          uint64
 	UserId      uint
 	ClassroomId uint
 	DocumentId  uint
 }
 
-func (n *Note) Init(id uint, userId uint, classroomId uint, documentId uint) {
+func (n *Note) Init(id uint64, userId uint, classroomId uint, documentId uint) {
 	n.Id = id
 	n.UserId = userId
 	n.ClassroomId = classroomId

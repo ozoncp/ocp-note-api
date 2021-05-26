@@ -269,7 +269,7 @@ func TestConvertSliceToMap(t *testing.T) {
 	type Dataset struct {
 		BatchSize int
 		Input     []note.Note
-		Output    map[uint]note.Note
+		Output    map[uint64]note.Note
 	}
 
 	dataset := []Dataset{
@@ -282,7 +282,7 @@ func TestConvertSliceToMap(t *testing.T) {
 				{Id: 13, UserId: 14, ClassroomId: 15, DocumentId: 16},
 				{Id: 17, UserId: 18, ClassroomId: 19, DocumentId: 20},
 			},
-			Output: map[uint]note.Note{
+			Output: map[uint64]note.Note{
 				1:  {Id: 1, UserId: 2, ClassroomId: 3, DocumentId: 4},
 				5:  {Id: 5, UserId: 6, ClassroomId: 7, DocumentId: 8},
 				9:  {Id: 9, UserId: 10, ClassroomId: 11, DocumentId: 12},
@@ -303,7 +303,7 @@ func TestConvertSliceToMap(t *testing.T) {
 	}
 }
 
-func equalNoteMaps(first map[uint]note.Note, second map[uint]note.Note) bool {
+func equalNoteMaps(first map[uint64]note.Note, second map[uint64]note.Note) bool {
 
 	if len(first) != len(second) {
 		return false
