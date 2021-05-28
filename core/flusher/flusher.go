@@ -25,14 +25,14 @@ func New(chunkSize int, storage repo.Repo) Flusher {
 func (f *flusher) Flush(notes []note.Note) []note.Note {
 
 	chunks := utils.SplitNoteSlice(notes, f.chunkSize)
-	var succesPos = 0
+	var successPos = 0
 
 	for _, val := range chunks {
-		if err := f.storage.AddTasks(val); err != nil {
-			return notes[succesPos:]
+		if err := f.storage.AddNotes(val); err != nil {
+			return notes[successPos:]
 		}
 
-		succesPos += len(val)
+		successPos += len(val)
 	}
 
 	return nil
