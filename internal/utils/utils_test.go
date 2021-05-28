@@ -316,7 +316,7 @@ func equalNoteMaps(first map[uint64]note.Note, second map[uint64]note.Note) bool
 			if val.Id != valFromSecond.Id ||
 				val.UserId != valFromSecond.UserId ||
 				val.ClassroomId != valFromSecond.ClassroomId ||
-				val.DocumentId != val.DocumentId {
+				val.DocumentId != valFromSecond.DocumentId {
 				return false
 			}
 		}
