@@ -15,10 +15,10 @@ type flusher struct {
 	storage   repo.Repo
 }
 
-func New(chunkSize int, storage repo.Repo) Flusher {
+func New(storage repo.Repo, chunkSize int) Flusher {
 	return &flusher{
-		chunkSize: chunkSize,
 		storage:   storage,
+		chunkSize: chunkSize,
 	}
 }
 
