@@ -1,6 +1,8 @@
 package flusher_test
 
 import (
+	"errors"
+
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -10,50 +12,83 @@ import (
 	"github.com/ozoncp/ocp-note-api/core/note"
 )
 
-var _ = Describe("Flusher", func() {
+var (
+	errDeadlineExceeded = errors.New("mock error")
+)
 
+var _ = Describe("Flusher", func() {
 	var (
+		err error
+
 		ctrl *gomock.Controller
 
 		mockStorage *mocks.MockRepo
 
-		//notes []note.Note
-		notes []note.Note
-		rest  []note.Note
+		notes  []note.Note
+		result []note.Note
 
-		f         flusher.Flusher
+		f flusher.Flusher
+
 		chunkSize int
-		err       error
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
+
 		mockStorage = mocks.NewMockRepo(ctrl)
 	})
 
 	JustBeforeEach(func() {
-		f = flusher.New(chunkSize, mockStorage)
-		rest = f.Flush(notes)
+		f = flusher.New(mockStorage, chunkSize)
+		result = f.Flush(notes)
 	})
 
 	AfterEach(func() {
 		ctrl.Finish()
 	})
 
-	Context("repo save all notes", func() {
+	Context("repo saves all runners", func() {
 		BeforeEach(func() {
-			//notes = []note.Note{{}}
+			chunkSize = 2
+			notes = []note.Note{{}}
 
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil).MinTimes(1)
 		})
 
 		It("", func() {
 			Expect(err).Should(BeNil())
-			Expect(rest).Should(BeNil())
+			Expect(result).Should(BeNil())
+		})
+	})
+
+	Context("repo don't saves any runner", func() {
+		BeforeEach(func() {
+			chunkSize = 2
+			notes = []note.Note{{}, {}}
+
+			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded)
 		})
 
-		AfterEach(func() {
+		It("", func() {
+			Expect(err).Should(BeNil())
+			Expect(result).Should(BeEquivalentTo(notes))
+		})
+	})
 
+	Context("repo saves half runners", func() {
+		BeforeEach(func() {
+			notes = []note.Note{{}, {}}
+			chunkSize = len(notes) / 2
+
+			gomock.InOrder(
+				mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil),
+				mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded),
+			)
+		})
+
+		It("", func() {
+			Expect(err).Should(BeNil())
+			Expect(result).Should(BeEquivalentTo(notes[chunkSize:]))
 		})
 	})
 })
