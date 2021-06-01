@@ -69,7 +69,7 @@ var _ = Describe("Flusher", func() {
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded)
 		})
 
-		It("repo don't saves any note", func() {
+		It("repo does not save", func() {
 			Expect(err).Should(BeNil())
 			Expect(result).Should(BeEquivalentTo(notes))
 		})
