@@ -9,13 +9,6 @@ type Note struct {
 	DocumentId  uint
 }
 
-func (n *Note) New(id uint64, userId uint, classroomId uint, documentId uint) {
-	n.Id = id
-	n.UserId = userId
-	n.ClassroomId = classroomId
-	n.DocumentId = documentId
-}
-
 func (n *Note) Create() {
 	fmt.Printf("Note '%d' created", n.Id)
 }
