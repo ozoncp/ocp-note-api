@@ -47,10 +47,10 @@ var _ = Describe("Flusher", func() {
 		ctrl.Finish()
 	})
 
-	Context("repo saves all runners", func() {
+	Context("repo saves all notes", func() {
 		BeforeEach(func() {
-			chunkSize = 2
 			notes = []note.Note{{}}
+			chunkSize = 2
 
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil).MinTimes(1)
 		})
@@ -61,10 +61,10 @@ var _ = Describe("Flusher", func() {
 		})
 	})
 
-	Context("repo don't saves any runner", func() {
+	Context("repo don't saves any note", func() {
 		BeforeEach(func() {
-			chunkSize = 2
 			notes = []note.Note{{}, {}}
+			chunkSize = 2
 
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded)
 		})
@@ -75,7 +75,7 @@ var _ = Describe("Flusher", func() {
 		})
 	})
 
-	Context("repo saves half runners", func() {
+	Context("repo saves half notes", func() {
 		BeforeEach(func() {
 			notes = []note.Note{{}, {}}
 			chunkSize = len(notes) / 2
