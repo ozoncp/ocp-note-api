@@ -47,7 +47,7 @@ var _ = Describe("Flusher", func() {
 		ctrl.Finish()
 	})
 
-	Context("repo saves all notes", func() {
+	Context("when the repo is not wrong", func() {
 		BeforeEach(func() {
 			notes = []note.Note{{}}
 			chunkSize = 2
@@ -55,13 +55,13 @@ var _ = Describe("Flusher", func() {
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil).MinTimes(1)
 		})
 
-		It("", func() {
+		It("repo saves all notes", func() {
 			Expect(err).Should(BeNil())
 			Expect(result).Should(BeNil())
 		})
 	})
 
-	Context("repo don't saves any note", func() {
+	Context("when the repo is always wrong", func() {
 		BeforeEach(func() {
 			notes = []note.Note{{}, {}}
 			chunkSize = 2
@@ -69,13 +69,13 @@ var _ = Describe("Flusher", func() {
 			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded)
 		})
 
-		It("", func() {
+		It("repo don't saves any note", func() {
 			Expect(err).Should(BeNil())
 			Expect(result).Should(BeEquivalentTo(notes))
 		})
 	})
 
-	Context("repo saves half notes", func() {
+	Context("when the repo is wrong half the time", func() {
 		BeforeEach(func() {
 			notes = []note.Note{{}, {}}
 			chunkSize = len(notes) / 2
@@ -86,7 +86,7 @@ var _ = Describe("Flusher", func() {
 			)
 		})
 
-		It("", func() {
+		It("repo saves half notes", func() {
 			Expect(err).Should(BeNil())
 			Expect(result).Should(BeEquivalentTo(notes[chunkSize:]))
 		})
