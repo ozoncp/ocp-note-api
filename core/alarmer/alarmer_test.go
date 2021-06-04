@@ -5,7 +5,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/ozoncp/ocp-note-api/core/alarmer"
@@ -14,24 +13,19 @@ import (
 var _ = Describe("Alarmer", func() {
 
 	var (
-		ctrl *gomock.Controller
-		alrm alarmer.Alarmer
+		alrm  alarmer.Alarmer
+		timer *time.Timer
 	)
 
 	BeforeEach(func() {
-		ctrl = gomock.NewController(GinkgoT())
-		alrm = alarmer.New(50 * time.Millisecond)
-	})
-
-	AfterEach(func() {
-		ctrl.Finish()
+		alrm = alarmer.New(20 * time.Millisecond)
+		timer = time.NewTimer(500 * time.Millisecond)
 	})
 
 	Context("Alarm frequency", func() {
 		It("closing alarm", func() {
 			alrm.Init()
-
-			timer := time.NewTimer(500 * time.Millisecond)
+			timer.Reset(0)
 
 			go func() {
 				defer alrm.Close()
@@ -43,9 +37,10 @@ var _ = Describe("Alarmer", func() {
 
 		It("number of alarms", func() {
 			alrm.Init()
+			timer.Reset(0)
 
 			var count uint32
-			timer := time.NewTimer(5000 * time.Millisecond)
+			timer := time.NewTimer(2000 * time.Millisecond)
 
 			go func() {
 				defer alrm.Close()
