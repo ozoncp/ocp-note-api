@@ -33,12 +33,11 @@ func (a *alarmer) Init() {
 		for {
 			select {
 			case <-ticker.C:
-				fmt.Println("tik")
 				select {
 				case a.alarm <- struct{}{}:
-					fmt.Println("tok")
+					fmt.Println("tik")
 				default:
-					fmt.Println("tak")
+					fmt.Println("non tik")
 				}
 			case <-a.end:
 				return
