@@ -4,6 +4,7 @@ import "time"
 
 type Alarmer interface {
 	Alarm() <-chan struct{}
+	Close()
 }
 
 type alarmer struct {
