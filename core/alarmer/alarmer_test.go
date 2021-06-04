@@ -1,6 +1,8 @@
 package alarmer_test
 
 import (
+	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/golang/mock/gomock"
@@ -18,7 +20,7 @@ var _ = Describe("Alarmer", func() {
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
-		alrm = alarmer.New(5 * time.Millisecond)
+		alrm = alarmer.New(50 * time.Millisecond)
 	})
 
 	AfterEach(func() {
@@ -29,7 +31,7 @@ var _ = Describe("Alarmer", func() {
 		It("closing alarm", func() {
 			alrm.Init()
 
-			timer := time.NewTimer(250 * time.Millisecond)
+			timer := time.NewTimer(500 * time.Millisecond)
 
 			go func() {
 				defer alrm.Close()
@@ -37,6 +39,26 @@ var _ = Describe("Alarmer", func() {
 			}()
 
 			Eventually(alrm.Alarm()).Should(BeClosed())
+		})
+
+		It("number of alarms", func() {
+			alrm.Init()
+
+			var count uint32
+			timer := time.NewTimer(5000 * time.Millisecond)
+
+			go func() {
+				defer alrm.Close()
+
+				<-timer.C
+
+				fmt.Printf("count: %v\n", atomic.LoadUint32(&count))
+				Expect(atomic.LoadUint32(&count)).To(SatisfyAll(BeNumerically(">=", 99), BeNumerically("<=", 101)))
+			}()
+
+			for range alrm.Alarm() {
+				atomic.AddUint32(&count, 1)
+			}
 		})
 	})
 })
