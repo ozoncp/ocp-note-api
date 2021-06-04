@@ -30,11 +30,14 @@ func New(alarmer alarmer.Alarmer) Saver {
 
 func (s *saver) Init() {
 	go func() {
-
-		select {
-		case _, ok := <-s.alarmer.Alarm():
-			if ok {
-				fmt.Println("check")
+		for {
+			select {
+			case _, ok := <-s.alarmer.Alarm():
+				if ok {
+					fmt.Println("check")
+				} else {
+					fmt.Println("non check")
+				}
 			}
 		}
 	}()
