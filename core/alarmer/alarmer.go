@@ -21,6 +21,7 @@ func New(duration time.Duration) Alarmer {
 	return &alarmer{
 		duration: duration,
 		alarm:    make(chan struct{}),
+		end:      make(chan struct{}),
 	}
 }
 
@@ -29,6 +30,7 @@ func (a *alarmer) Init() {
 		ticker := time.NewTicker(a.duration)
 		defer ticker.Stop()
 		defer close(a.alarm)
+		defer close(a.end)
 
 		for {
 			select {
@@ -40,6 +42,7 @@ func (a *alarmer) Init() {
 					fmt.Println("non tik")
 				}
 			case <-a.end:
+				fmt.Println("finish alarm")
 				return
 			}
 		}
@@ -51,5 +54,6 @@ func (a *alarmer) Alarm() <-chan struct{} {
 }
 
 func (a *alarmer) Close() {
-	close(a.end)
+	fmt.Println("alarm finish signal")
+	a.end <- struct{}{}
 }

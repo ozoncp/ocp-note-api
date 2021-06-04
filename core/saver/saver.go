@@ -22,6 +22,7 @@ type saver struct {
 	notesChan   chan note.Note
 	notes       []note.Note
 	lossAllData bool
+	end         chan struct{}
 }
 
 func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
@@ -30,6 +31,7 @@ func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAl
 		flusher:     flusher,
 		alarmer:     alarmer,
 		notesChan:   make(chan note.Note),
+		end:         make(chan struct{}),
 		lossAllData: lossAllData,
 	}
 }
@@ -49,6 +51,9 @@ func (s *saver) Init() {
 				} else {
 					fmt.Println("non flush")
 				}
+			case <-s.end:
+				fmt.Println("finish")
+				return
 			}
 		}
 	}()
@@ -83,5 +88,7 @@ func (s *saver) flushData() {
 }
 
 func (s *saver) Close() {
-	s.flusher.Flush(s.notes)
+	s.end <- struct{}{}
+	s.flushData()
+	s.alarmer.Close()
 }
