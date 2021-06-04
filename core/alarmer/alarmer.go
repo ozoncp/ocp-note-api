@@ -12,14 +12,6 @@ type alarmer struct {
 	end      chan struct{}
 }
 
-func (a *alarmer) New(duration time.Duration) Alarmer {
-	return &alarmer{
-		duration: duration,
-		alarm:    make(chan struct{}),
-		end:      make(chan struct{}),
-	}
-}
-
 func (a *alarmer) Init() {
 	go func() {
 		ticker := time.NewTicker(a.duration)
