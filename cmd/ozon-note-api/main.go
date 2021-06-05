@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ozoncp/ocp-note-api/core/alarmer"
+	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/saver"
 	_ "github.com/ozoncp/ocp-note-api/internal/utils"
 )
@@ -13,14 +14,25 @@ import (
 func main() {
 	fmt.Println("© Oleg Kozyrev, 2021")
 
-	al := alarmer.New(2 * time.Second)
-	sv := saver.New(al)
+	al := alarmer.New(5 * time.Second)
+	sv := saver.New(5, nil, al, true)
 
 	al.Init()
 	sv.Init()
 
-	time.Sleep(100 * time.Second)
+	var i int = 0
+	for {
+		sv.Save(note.Note{})
+		time.Sleep(2 * time.Second)
+		i++
 
+		if i == 5 {
+			sv.Close()
+			break
+		}
+	}
+
+	time.Sleep(2 * time.Second)
 }
 
 func repeatOpenFile() {
