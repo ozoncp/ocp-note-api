@@ -80,6 +80,7 @@ func (s *saver) saveData(note note.Note) {
 func (s *saver) flushData() {
 	response := s.flusher.Flush(s.notes)
 
+	fmt.Println("flush data")
 	if response != nil {
 		log.Fatal("failed to flush")
 	}
