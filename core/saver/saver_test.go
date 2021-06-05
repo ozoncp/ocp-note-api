@@ -56,7 +56,6 @@ var _ = Describe("Saver", func() {
 				defer wg.Done()
 
 				saver.Init()
-				alarm.Init()
 
 				for i := 0; i < len(notes); i++ {
 					saver.Save(notes[i])

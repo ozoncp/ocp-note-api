@@ -36,6 +36,9 @@ func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAl
 }
 
 func (s *saver) Init() {
+
+	s.alarmer.Init()
+
 	go func() {
 		for {
 			select {
