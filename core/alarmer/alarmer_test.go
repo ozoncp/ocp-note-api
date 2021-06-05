@@ -1,7 +1,6 @@
 package alarmer_test
 
 import (
-	"fmt"
 	"sync/atomic"
 	"time"
 
@@ -47,8 +46,8 @@ var _ = Describe("Alarmer", func() {
 
 				<-timer.C
 
-				fmt.Printf("count: %v\n", atomic.LoadUint32(&count))
-				Expect(atomic.LoadUint32(&count)).To(SatisfyAll(BeNumerically(">=", 99), BeNumerically("<=", 101)))
+				//fmt.Printf("count: %v\n", atomic.LoadUint32(&count))
+				Expect(atomic.LoadUint32(&count)).To(SatisfyAll(BeNumerically(">=", 90), BeNumerically("<=", 105)))
 			}()
 
 			for range alrm.Alarm() {

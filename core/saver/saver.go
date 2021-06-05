@@ -1,7 +1,6 @@
 package saver
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ozoncp/ocp-note-api/core/alarmer"
@@ -42,17 +41,13 @@ func (s *saver) Init() {
 			select {
 			case noteTmp := <-s.notesChan:
 				s.saveData(noteTmp)
-				fmt.Printf("size: %v\n", len(s.notes))
-
 			case _, ok := <-s.alarmer.Alarm():
 				if ok {
-					fmt.Println("flush")
 					s.flushData()
 				} else {
-					fmt.Println("non flush")
+					log.Fatalln("signal reception error on the flush")
 				}
 			case <-s.end:
-				fmt.Println("finish")
 				return
 			}
 		}
@@ -66,10 +61,8 @@ func (s *saver) Save(note note.Note) {
 func (s *saver) saveData(note note.Note) {
 	if len(s.notes) >= int(s.capacity) {
 		if s.lossAllData {
-			fmt.Println("0.1")
 			s.notes = s.notes[:0]
 		} else {
-			fmt.Println("0.2")
 			s.notes = s.notes[1:]
 		}
 	}
@@ -80,9 +73,8 @@ func (s *saver) saveData(note note.Note) {
 func (s *saver) flushData() {
 	response := s.flusher.Flush(s.notes)
 
-	fmt.Println("flush data")
 	if response != nil {
-		log.Fatal("failed to flush")
+		log.Fatalln("failed to flush")
 	}
 
 	s.notes = s.notes[:copy(s.notes, response)]

@@ -1,7 +1,7 @@
 package alarmer
 
 import (
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -37,12 +37,10 @@ func (a *alarmer) Init() {
 			case <-ticker.C:
 				select {
 				case a.alarm <- struct{}{}:
-					fmt.Println("tik")
 				default:
-					fmt.Println("non tik")
+					log.Fatalln("failed to send alarm")
 				}
 			case <-a.end:
-				fmt.Println("finish alarm")
 				return
 			}
 		}
@@ -54,6 +52,5 @@ func (a *alarmer) Alarm() <-chan struct{} {
 }
 
 func (a *alarmer) Close() {
-	fmt.Println("alarm finish signal")
 	a.end <- struct{}{}
 }
