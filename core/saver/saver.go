@@ -25,6 +25,11 @@ type saver struct {
 }
 
 func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
+
+	if capacity <= 0 || flusher == nil || alarmer == nil {
+		return nil
+	}
+
 	return &saver{
 		capacity:    capacity,
 		flusher:     flusher,
