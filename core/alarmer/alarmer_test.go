@@ -19,11 +19,17 @@ var _ = Describe("Alarmer", func() {
 	BeforeEach(func() {
 		alrm = alarmer.New(20 * time.Millisecond)
 		timer = time.NewTimer(500 * time.Millisecond)
+
+		err := alrm.Init()
+
+		if err != nil {
+			Fail("alarmer initialization failed")
+		}
 	})
 
 	Context("Alarm frequency", func() {
 		It("closing alarm", func() {
-			alrm.Init()
+
 			timer.Reset(0)
 
 			go func() {
@@ -35,11 +41,11 @@ var _ = Describe("Alarmer", func() {
 		})
 
 		It("number of alarms", func() {
-			alrm.Init()
+
 			timer.Reset(0)
 
 			var count uint32
-			timer := time.NewTimer(2000 * time.Millisecond)
+			timer := time.NewTimer(2 * time.Second)
 
 			go func() {
 				defer alrm.Close()
