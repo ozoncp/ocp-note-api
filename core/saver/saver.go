@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"errors"
 	"log"
 
 	"github.com/ozoncp/ocp-note-api/core/alarmer"
@@ -10,7 +11,7 @@ import (
 
 type Saver interface {
 	Save(note note.Note)
-	Init()
+	Init() error
 	Close()
 }
 
@@ -22,6 +23,7 @@ type saver struct {
 	notes       []note.Note
 	lossAllData bool
 	end         chan struct{}
+	initPassed  bool
 }
 
 func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
@@ -35,14 +37,24 @@ func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAl
 		flusher:     flusher,
 		alarmer:     alarmer,
 		notesChan:   make(chan note.Note),
-		end:         make(chan struct{}),
+		notes:       []note.Note{},
 		lossAllData: lossAllData,
+		end:         make(chan struct{}),
+		initPassed:  false,
 	}
 }
 
-func (s *saver) Init() {
+func (s *saver) Init() error {
 
-	s.alarmer.Init()
+	if s.initPassed {
+		return errors.New("the saver has already been initialized")
+	}
+
+	err := s.alarmer.Init()
+
+	if err != nil {
+		panic("alarm is faulty")
+	}
 
 	go func() {
 		for {
@@ -60,9 +72,17 @@ func (s *saver) Init() {
 			}
 		}
 	}()
+
+	s.initPassed = true
+	return nil
 }
 
 func (s *saver) Save(note note.Note) {
+
+	if !s.initPassed {
+		panic("the saver has not been initialized")
+	}
+
 	s.notesChan <- note
 }
 
