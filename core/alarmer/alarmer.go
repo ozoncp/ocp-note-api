@@ -1,13 +1,12 @@
 package alarmer
 
 import (
-	"log"
 	"time"
 )
 
 type Alarmer interface {
 	Alarm() <-chan struct{}
-	Init()
+	Init() error
 	Close()
 }
 
@@ -18,6 +17,11 @@ type alarmer struct {
 }
 
 func New(duration time.Duration) Alarmer {
+
+	if duration <= 0 {
+		return nil
+	}
+
 	return &alarmer{
 		duration: duration,
 		alarm:    make(chan struct{}),
@@ -25,7 +29,7 @@ func New(duration time.Duration) Alarmer {
 	}
 }
 
-func (a *alarmer) Init() {
+func (a *alarmer) Init() error {
 	go func() {
 		ticker := time.NewTicker(a.duration)
 		defer ticker.Stop()
@@ -38,13 +42,14 @@ func (a *alarmer) Init() {
 				select {
 				case a.alarm <- struct{}{}:
 				default:
-					log.Fatalln("failed to send alarm")
 				}
 			case <-a.end:
 				return
 			}
 		}
 	}()
+
+	return nil
 }
 
 func (a *alarmer) Alarm() <-chan struct{} {
