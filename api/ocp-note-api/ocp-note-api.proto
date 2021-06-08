@@ -1,4 +1,4 @@
-syntax = "proto 3";
+syntax = "proto3";
 
 import "google/api/annotations.proto";
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
@@ -34,20 +34,20 @@ service OcpNoteApi {
 }
 
 message CreateNoteV1Request {
-    uint user_id = 2;
-    uint classroom_id = 3;
-    uint document_id = 4;
+    uint32 user_id = 2;
+    uint32 classroom_id = 3;
+    uint32 document_id = 4;
 }
 
 message CreateNoteV1Response {
     uint64 note_id = 1;
 }
 
-message DescribeV1Request {
+message DescribeNoteV1Request {
     uint64 note_id = 1 [(validate.rules).uint64.gt = 0];
 }
 
-message DescribeV1Response {
+message DescribeNoteV1Response {
     Note note = 1;
 }
 
@@ -61,7 +61,7 @@ message ListNotesV1Response {
 }
 
 message RemoveNoteV1Request {
-    uint64 note_id = 1 [(validate.rules.uint64.gt = 0)];
+    uint64 note_id = 1 [(validate.rules).uint64.gt = 0];
 }
 
 message RemoveNoteV1Response {
@@ -70,7 +70,7 @@ message RemoveNoteV1Response {
 
 message Note {
     uint64 id = 1;
-    uint user_id = 2;
-    uint classroom_id = 3;
-    uint document_id = 4;
+    uint32 user_id = 2;
+    uint32 classroom_id = 3;
+    uint32 document_id = 4;
 }
