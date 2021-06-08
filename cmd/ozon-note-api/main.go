@@ -11,6 +11,29 @@ import (
 func main() {
 	fmt.Println("© Oleg Kozyrev, 2021")
 
+	repeatOpenFile()
+	// al := alarmer.New(5 * time.Second)
+	// sv := saver.New(5, nil, al, true)
+
+	// al.Init()
+	// sv.Init()
+
+	// var i int = 0
+	// for {
+	// 	sv.Save(note.Note{})
+	// 	time.Sleep(2 * time.Second)
+	// 	i++
+
+	// 	if i == 5 {
+	// 		sv.Close()
+	// 		break
+	// 	}
+	// }
+
+	// time.Sleep(2 * time.Second)
+}
+
+func repeatOpenFile() {
 	var numberOfIterations int
 
 	fmt.Println("Enter the number of iterations ...")
