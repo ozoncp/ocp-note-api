@@ -13,3 +13,24 @@ PHONY: .generate
 				./api/ocp-note-api/ocp-note-api.proto
 		move pkg\ocp-note-api\github.com\ozoncp\ocp-note-api\pkg\ocp-note-api\* pkg\ocp-note-api
 		rmdir /s /q pkg\ocp-note-api\github.com
+
+PHONY: .vendor-proto
+.vendor-proto:
+		mkdir vendor.protogen
+		mkdir vendor.protogen\api\ocp-note-api
+		copy /y api\ocp-note-api\ocp-note-api.proto vendor.protogen\api\ocp-note-api
+
+		git clone https://github.com/googleapis/googleapis vendor.protogen\googleapis
+		mkdir vendor.protogen\google
+		move vendor.protogen\googleapis\google\api vendor.protogen\google
+		rmdir /s /q vendor.protogen\googleapis
+
+		mkdir vendor.protogen\validate
+		git clone https://github.com/envoyproxy/protoc-gen-validate vendor.protogen\protoc-gen-validate
+		move vendor.protogen\protoc-gen-validate\validate\*.proto vendor.protogen\validate
+		rmdir /s /q vendor.protogen\protoc-gen-validate
+
+		mkdir vendor.protogen\google\protobuf
+		git clone https://github.com/protocolbuffers/protobuf vendor.protogen\protobuf
+		move vendor.protogen\protobuf\src\google\protobuf\*.proto vendor.protogen\google\protobuf
+		rmdir /s /q vendor.protogen\protobuf
