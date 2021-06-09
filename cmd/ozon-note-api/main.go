@@ -1,71 +1,43 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"net"
 	"os"
-	"time"
 
-	_ "github.com/ozoncp/ocp-note-api/internal/utils"
+	"github.com/ozoncp/ocp-note-api/core/api"
+	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
+var grpcPort int
+
+func init() {
+	flag.IntVar(&grpcPort, "port", 1235, "GRPC server port")
+}
+
 func main() {
-	fmt.Println("© Oleg Kozyrev, 2021")
+	flag.Parse()
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	grpcEndpoint := fmt.Sprintf("localhost:%d", grpcPort)
 
-	repeatOpenFile()
-	// al := alarmer.New(5 * time.Second)
-	// sv := saver.New(5, nil, al, true)
+	lis, err := net.Listen("tcp", grpcEndpoint)
 
-	// al.Init()
-	// sv.Init()
-
-	// var i int = 0
-	// for {
-	// 	sv.Save(note.Note{})
-	// 	time.Sleep(2 * time.Second)
-	// 	i++
-
-	// 	if i == 5 {
-	// 		sv.Close()
-	// 		break
-	// 	}
-	// }
-
-	// time.Sleep(2 * time.Second)
-}
-
-func repeatOpenFile() {
-	var numberOfIterations int
-
-	fmt.Println("Enter the number of iterations ...")
-	fmt.Scanf("%d", &numberOfIterations)
-
-	for i := 0; i < numberOfIterations; i++ {
-
-		fmt.Printf("%d iteration\n", i)
-
-		func() {
-			f, err := os.Open("test.txt")
-			checkError(err)
-
-			data := make([]byte, 20)
-
-			count, err := f.Read(data)
-			checkError(err)
-
-			fmt.Printf("%d bytes: %s\n", count, string(data[:count]))
-
-			time.Sleep(2 * time.Second)
-
-			defer func() {
-				fmt.Println("File closed")
-				f.Close()
-			}()
-		}()
-	}
-}
-
-func checkError(err error) {
 	if err != nil {
-		panic(err)
+		log.Fatal().Err(err).Msgf("Cannot start feedback grpc server at %v", grpcEndpoint)
+	}
+
+	log.Info().Msgf("Starting server at %v...", grpcEndpoint)
+
+	grpcServer := grpc.NewServer()
+	reflection.Register(grpcServer)
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi())
+
+	if err = grpcServer.Serve(lis); err != nil {
+		log.Fatal().Err(err).Msg("Cannot accept connections")
 	}
 }
