@@ -8,6 +8,4 @@ PHONY: .generate
 					--grpc-gateway_opt=paths=import \
 					--validate_out lang=go:pkg/ocp-note-api \
 					--swagger_out=allow_merge=true,merge_file_name=api:. \
-					./api/ocp-note-api/ocp-note-api.proto &&\
-			move ./pkg/ocp-note-api/github.com/ozoncp/ocp-note-api/pkg/ocp-note-api/* ./pkg/ocp-note-api/ &&\
-			del "./pkg/ocp-note-api/github.com"
+					./api/ocp-note-api/ocp-note-api.proto
