@@ -1,0 +1,169 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ocp-note-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/notes": {
+      "get": {
+        "operationId": "ListNotesV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListNotesV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpNoteApi"
+        ]
+      },
+      "post": {
+        "operationId": "CreateNoteV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateNoteV1Response"
+            }
+          }
+        },
+        "tags": [
+          "OcpNoteApi"
+        ]
+      }
+    },
+    "/v1/notes/{note_id}": {
+      "get": {
+        "operationId": "DescribeNoteV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeNoteV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpNoteApi"
+        ]
+      },
+      "delete": {
+        "operationId": "RemoveNoteV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRemoveNoteV1Response"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpNoteApi"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiCreateNoteV1Response": {
+      "type": "object",
+      "properties": {
+        "note_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiDescribeNoteV1Response": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/apiNote"
+        }
+      }
+    },
+    "apiListNotesV1Response": {
+      "type": "object",
+      "properties": {
+        "notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiNote"
+          }
+        }
+      }
+    },
+    "apiNote": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "classroom_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "document_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "apiRemoveNoteV1Response": {
+      "type": "object",
+      "properties": {
+        "found": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    }
+  }
+}
