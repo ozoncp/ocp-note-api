@@ -2,11 +2,11 @@
 // source: ocp-note-api.proto
 
 /*
-Package oct_note_api is a reverse proxy.
+Package ocp_note_api is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package oct_note_api
+package ocp_note_api
 
 import (
 	"context"
