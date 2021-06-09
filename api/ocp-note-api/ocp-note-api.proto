@@ -1,11 +1,11 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
-import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "validate/validate.proto";
 
 package ocp.note.api;
 
-option go_package = "gihtub.com/ozoncp/ocp-note-api/pkg/ocp-note-api;oct_note_api";
+option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_api";
 
 service OcpNoteApi {
     rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
