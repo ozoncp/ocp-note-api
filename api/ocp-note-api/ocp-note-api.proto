@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+package ocp.note.api;
+
+option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_api";
+
+service OcpNoteApi {
+    rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
+        option (google.api.http) = {
+            post: "/v1/notes"
+        };
+    }
+
+    rpc DescribeNoteV1(DescribeNoteV1Request) returns (DescribeNoteV1Response) {
+        option (google.api.http) = {
+            get: "/v1/notes/{note_id}"
+        };
+    }
+
+    rpc ListNotesV1(ListNotesV1Request) returns (ListNotesV1Response) {
+        option (google.api.http) = {
+            get: "/v1/notes"
+        };
+    }
+
+    rpc RemoveNoteV1(RemoveNoteV1Request) returns (RemoveNoteV1Response) {
+        option (google.api.http) = {
+            delete: "/v1/notes/{note_id}"
+        };
+    }
+}
+
+message CreateNoteV1Request {
+    uint32 user_id = 2;
+    uint32 classroom_id = 3;
+    uint32 document_id = 4;
+}
+
+message CreateNoteV1Response {
+    uint64 note_id = 1;
+}
+
+message DescribeNoteV1Request {
+    uint64 note_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message DescribeNoteV1Response {
+    Note note = 1;
+}
+
+message ListNotesV1Request {
+    uint64 limit = 1;
+    uint64 offset = 2;
+}
+
+message ListNotesV1Response {
+    repeated Note notes = 1;
+}
+
+message RemoveNoteV1Request {
+    uint64 note_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message RemoveNoteV1Response {
+    bool found = 1;
+}
+
+message Note {
+    uint64 id = 1;
+    uint32 user_id = 2;
+    uint32 classroom_id = 3;
+    uint32 document_id = 4;
+}
