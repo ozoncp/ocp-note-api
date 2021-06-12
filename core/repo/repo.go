@@ -9,7 +9,7 @@ import (
 )
 
 type Repo interface {
-	AddNote(ctx context.Context, note note.Note) (uint64, error)
+	AddNote(ctx context.Context, note *note.Note) (uint64, error)
 	AddNotes(ctx context.Context, notes []note.Note) error
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
 	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
@@ -28,7 +28,7 @@ func New(db sqlx.DB) Repo {
 	return &repo{db: db}
 }
 
-func (r *repo) AddNote(ctx context.Context, note note.Note) (uint64, error) {
+func (r *repo) AddNote(ctx context.Context, note *note.Note) (uint64, error) {
 	query := sq.Insert(tableName).
 		Columns("user_id", "classroom_id", "document_id").
 		Values(note.UserId, note.ClassroomId, note.DocumentId).
