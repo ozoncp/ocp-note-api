@@ -1,6 +1,7 @@
 package flusher_test
 
 import (
+	"context"
 	"errors"
 
 	"github.com/golang/mock/gomock"
@@ -52,7 +53,7 @@ var _ = Describe("Flusher", func() {
 			notes = []note.Note{{}}
 			chunkSize = 2
 
-			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil).MinTimes(1)
+			mockStorage.EXPECT().AddNotes(context.TODO(), gomock.Any()).Return(nil).MinTimes(1)
 		})
 
 		It("repo saves all notes", func() {
@@ -66,7 +67,7 @@ var _ = Describe("Flusher", func() {
 			notes = []note.Note{{}, {}}
 			chunkSize = 2
 
-			mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded)
+			mockStorage.EXPECT().AddNotes(context.TODO(), gomock.Any()).Return(errDeadlineExceeded)
 		})
 
 		It("repo does not save", func() {
@@ -81,8 +82,8 @@ var _ = Describe("Flusher", func() {
 			chunkSize = len(notes) / 2
 
 			gomock.InOrder(
-				mockStorage.EXPECT().AddNotes(gomock.Any()).Return(nil),
-				mockStorage.EXPECT().AddNotes(gomock.Any()).Return(errDeadlineExceeded),
+				mockStorage.EXPECT().AddNotes(context.TODO(), gomock.Any()).Return(nil),
+				mockStorage.EXPECT().AddNotes(context.TODO(), gomock.Any()).Return(errDeadlineExceeded),
 			)
 		})
 
