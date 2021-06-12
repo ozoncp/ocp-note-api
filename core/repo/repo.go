@@ -65,7 +65,7 @@ func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) 
 
 	var note note.Note
 
-	if err := query.QueryRowContext(ctx).Scan(&note); err != nil {
+	if err := query.QueryRowContext(ctx).Scan(&note.Id, &note.UserId, &note.ClassroomId, &note.DocumentId); err != nil {
 		return nil, err
 	}
 
@@ -90,7 +90,7 @@ func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note
 
 	for rows.Next() {
 		var note note.Note
-		err = rows.Scan(&note)
+		err = rows.Scan(&note.Id, &note.UserId, &note.ClassroomId, &note.DocumentId)
 
 		if err != nil {
 			continue
