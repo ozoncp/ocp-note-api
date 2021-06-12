@@ -52,10 +52,16 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Request) (*desc.DescribeNoteV1Response, error) {
 	log.Info().Msg("Desribe note ...")
 
+	if err := request.Validate(); err != nil {
+		log.Error().Err(err).Msg("invalid argument")
+		return nil, err
+	}
+
 	note, err := a.repo.DescribeNote(ctx, request.NoteId)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get description note")
+		return nil, err
 	}
 
 	log.Info().Msg("Desribe note success")
@@ -71,9 +77,36 @@ func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Re
 }
 
 func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request) (*desc.ListNotesV1Response, error) {
-	log.Print("List notes")
+	log.Info().Msg("List notes ...")
 
-	return nil, nil
+	if err := request.Validate(); err != nil {
+		log.Error().Err(err).Msg("invalid argument")
+		return nil, err
+	}
+
+	notes, err := a.repo.ListNotes(ctx, request.Limit, request.Offset)
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get notes")
+		return nil, err
+	}
+
+	notesProto := make([]*desc.Note, len(notes))
+
+	for _, note := range notes {
+		noteProto := &desc.Note{
+			Id:          note.Id,
+			UserId:      note.UserId,
+			ClassroomId: note.ClassroomId,
+			DocumentId:  note.DocumentId,
+		}
+
+		notesProto = append(notesProto, noteProto)
+	}
+
+	log.Info().Msg("List notes success")
+
+	return &desc.ListNotesV1Response{Notes: notesProto}, nil
 }
 
 func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Request) (*desc.RemoveNoteV1Response, error) {
