@@ -3,9 +3,11 @@ module github.com/ozoncp/ocp-note-api
 go 1.16
 
 require (
+	github.com/Masterminds/squirrel v1.5.0
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
 	github.com/golang/mock v1.5.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.16.3
