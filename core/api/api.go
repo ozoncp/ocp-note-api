@@ -32,9 +32,9 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 	}
 
 	note := &note.Note{
-		UserId:      request.UserId,
-		ClassroomId: request.ClassroomId,
-		DocumentId:  request.DocumentId,
+		UserId:      uint32(request.UserId),
+		ClassroomId: uint32(request.ClassroomId),
+		DocumentId:  uint32(request.DocumentId),
 	}
 
 	noteId, err := a.repo.AddNote(ctx, note)
@@ -57,7 +57,7 @@ func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Re
 		return nil, err
 	}
 
-	note, err := a.repo.DescribeNote(ctx, request.NoteId)
+	note, err := a.repo.DescribeNote(ctx, uint64(request.NoteId))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get description note")
@@ -84,14 +84,14 @@ func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request)
 		return nil, err
 	}
 
-	notes, err := a.repo.ListNotes(ctx, request.Limit, request.Offset)
+	notes, err := a.repo.ListNotes(ctx, uint64(request.Limit), uint64(request.Offset))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get notes")
 		return nil, err
 	}
 
-	notesProto := make([]*desc.Note, len(notes))
+	var notesProto []*desc.Note
 
 	for _, note := range notes {
 		noteProto := &desc.Note{
@@ -117,7 +117,7 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 		return nil, err
 	}
 
-	if err := a.repo.RemoveNote(ctx, request.NoteId); err != nil {
+	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
 		return &desc.RemoveNoteV1Response{Found: false}, nil
 	}
