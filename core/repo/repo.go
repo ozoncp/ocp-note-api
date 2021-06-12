@@ -12,7 +12,7 @@ type Repo interface {
 	AddNote(ctx context.Context, note note.Note) (uint64, error)
 	AddNotes(ctx context.Context, notes []note.Note) error
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
-	ListNotes(ctx context.Context, count, offset uint64) ([]note.Note, error)
+	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
 	RemoveNote(ctx context.Context, id uint64) error
 }
 
@@ -72,8 +72,34 @@ func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) 
 	return &note, nil
 }
 
-func (r *repo) ListNotes(ctx context.Context, count, offset uint64) ([]note.Note, error) {
-	return nil, nil
+func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error) {
+	query := sq.Select("id", "user_id", "classroom_id", "document_id").
+		From(tableName).
+		RunWith(r.db).
+		Limit(limit).
+		Offset(offset).
+		PlaceholderFormat(sq.Dollar)
+
+	var notes []note.Note
+
+	rows, err := query.QueryContext(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var note note.Note
+		err = rows.Scan(&note)
+
+		if err != nil {
+			continue
+		}
+
+		notes = append(notes, note)
+	}
+
+	return notes, nil
 }
 
 func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
