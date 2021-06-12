@@ -24,7 +24,7 @@ func init() {
 }
 
 func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Request) (*desc.CreateNoteV1Response, error) {
-	log.Print("Create note ...")
+	log.Info().Msg("Create note ...")
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
