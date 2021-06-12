@@ -1,6 +1,7 @@
 package saver_test
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -135,7 +136,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
@@ -170,7 +171,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
@@ -207,7 +208,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
@@ -252,7 +253,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
