@@ -111,6 +111,10 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 
 	result, err := query.ExecContext(ctx)
 
+	if err != nil {
+		return err
+	}
+
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
@@ -121,5 +125,5 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 		return errors.New("not found note")
 	}
 
-	return err
+	return nil
 }
