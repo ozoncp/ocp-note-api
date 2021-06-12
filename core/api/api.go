@@ -50,9 +50,24 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 }
 
 func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Request) (*desc.DescribeNoteV1Response, error) {
-	log.Print("Desribe note", request)
+	log.Info().Msg("Desribe note ...")
 
-	return nil, nil
+	note, err := a.repo.DescribeNote(ctx, request.NoteId)
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get description note")
+	}
+
+	log.Info().Msg("Desribe note success")
+
+	return &desc.DescribeNoteV1Response{
+		Note: &desc.Note{
+			Id:          note.Id,
+			UserId:      note.UserId,
+			ClassroomId: note.ClassroomId,
+			DocumentId:  note.DocumentId,
+		},
+	}, nil
 }
 
 func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request) (*desc.ListNotesV1Response, error) {
