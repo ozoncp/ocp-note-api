@@ -103,5 +103,12 @@ func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note
 }
 
 func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
-	return nil
+	query := sq.Delete(tableName).
+		Where(sq.Eq{"id": id}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
+
+	_, err := query.ExecContext(ctx)
+
+	return err
 }
