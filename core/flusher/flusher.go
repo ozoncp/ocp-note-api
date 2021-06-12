@@ -1,6 +1,8 @@
 package flusher
 
 import (
+	"context"
+
 	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	"github.com/ozoncp/ocp-note-api/internal/utils"
@@ -28,7 +30,7 @@ func (f *flusher) Flush(notes []note.Note) []note.Note {
 	var successPos = 0
 
 	for _, val := range chunks {
-		if err := f.storage.AddNotes(val); err != nil {
+		if err := f.storage.AddNotes(context.TODO(), val); err != nil {
 			return notes[successPos:]
 		}
 
