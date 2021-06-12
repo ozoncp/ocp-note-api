@@ -37,7 +37,11 @@ func (r *repo) AddNote(ctx context.Context, note *note.Note) (uint64, error) {
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
-	query.QueryRowContext(ctx).Scan(&note.Id)
+	err := query.QueryRowContext(ctx).Scan(&note.Id)
+
+	if err != nil {
+		return 0, err
+	}
 
 	return note.Id, nil
 }
