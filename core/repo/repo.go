@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -108,7 +109,17 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 		RunWith(r.db).
 		PlaceholderFormat(sq.Dollar)
 
-	_, err := query.ExecContext(ctx)
+	result, err := query.ExecContext(ctx)
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return errors.New("not found note")
+	}
 
 	return err
 }

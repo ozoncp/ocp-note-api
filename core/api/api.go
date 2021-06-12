@@ -119,7 +119,7 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 
 	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
-		return &desc.RemoveNoteV1Response{Found: false}, nil
+		return &desc.RemoveNoteV1Response{Found: false}, err
 	}
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
