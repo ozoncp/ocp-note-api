@@ -57,7 +57,19 @@ func (r *repo) AddNotes(ctx context.Context, notes []note.Note) error {
 }
 
 func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) {
-	return nil, nil
+	query := sq.Select("id", "user_id", "classroom_id", "document_id").
+		From(tableName).
+		Where(sq.Eq{"id": id}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
+
+	var note note.Note
+
+	if err := query.QueryRowContext(ctx).Scan(&note); err != nil {
+		return nil, err
+	}
+
+	return &note, nil
 }
 
 func (r *repo) ListNotes(ctx context.Context, count, offset uint64) ([]note.Note, error) {
