@@ -41,11 +41,26 @@ func (m *CreateNoteV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for UserId
+	if m.GetUserId() <= 0 {
+		return CreateNoteV1RequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return CreateNoteV1RequestValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for DocumentId
+	if m.GetDocumentId() <= 0 {
+		return CreateNoteV1RequestValidationError{
+			field:  "DocumentId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }
@@ -334,9 +349,19 @@ func (m *ListNotesV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Limit
+	if m.GetLimit() <= 0 {
+		return ListNotesV1RequestValidationError{
+			field:  "Limit",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for Offset
+	if m.GetOffset() <= 0 {
+		return ListNotesV1RequestValidationError{
+			field:  "Offset",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }

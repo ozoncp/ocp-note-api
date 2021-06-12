@@ -34,9 +34,9 @@ service OcpNoteApi {
 }
 
 message CreateNoteV1Request {
-    uint32 user_id = 2;
-    uint32 classroom_id = 3;
-    uint32 document_id = 4;
+    uint32 user_id = 2 [(validate.rules).uint32.gt = 0];
+    uint32 classroom_id = 3 [(validate.rules).uint32.gt = 0];
+    uint32 document_id = 4 [(validate.rules).uint32.gt = 0];
 }
 
 message CreateNoteV1Response {
@@ -52,8 +52,8 @@ message DescribeNoteV1Response {
 }
 
 message ListNotesV1Request {
-    uint64 limit = 1;
-    uint64 offset = 2;
+    uint64 limit = 1 [(validate.rules).uint64.gt = 0];
+    uint64 offset = 2 [(validate.rules).uint64.gt = 0];
 }
 
 message ListNotesV1Response {
