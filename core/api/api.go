@@ -110,7 +110,19 @@ func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request)
 }
 
 func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Request) (*desc.RemoveNoteV1Response, error) {
-	log.Print("Remove note")
+	log.Info().Msgf("Remove note (id: %d) ...", request.NoteId)
 
-	return nil, nil
+	if err := request.Validate(); err != nil {
+		log.Error().Err(err).Msg("invalid argument")
+		return nil, err
+	}
+
+	if err := a.repo.RemoveNote(ctx, request.NoteId); err != nil {
+		log.Error().Err(err).Msg("failed to remove note")
+		return &desc.RemoveNoteV1Response{Found: false}, nil
+	}
+
+	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
+
+	return &desc.RemoveNoteV1Response{Found: true}, nil
 }
