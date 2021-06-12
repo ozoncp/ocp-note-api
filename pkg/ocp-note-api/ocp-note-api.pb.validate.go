@@ -356,10 +356,10 @@ func (m *ListNotesV1Request) Validate() error {
 		}
 	}
 
-	if m.GetOffset() <= 0 {
+	if m.GetOffset() < 0 {
 		return ListNotesV1RequestValidationError{
 			field:  "Offset",
-			reason: "value must be greater than 0",
+			reason: "value must be greater than or equal to 0",
 		}
 	}
 

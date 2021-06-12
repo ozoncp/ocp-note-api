@@ -85,7 +85,7 @@ func request_OcpNoteApi_DescribeNoteV1_0(ctx context.Context, marshaler runtime.
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "note_id")
 	}
 
-	protoReq.NoteId, err = runtime.Uint64(val)
+	protoReq.NoteId, err = runtime.Int64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "note_id", err)
@@ -112,7 +112,7 @@ func local_request_OcpNoteApi_DescribeNoteV1_0(ctx context.Context, marshaler ru
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "note_id")
 	}
 
-	protoReq.NoteId, err = runtime.Uint64(val)
+	protoReq.NoteId, err = runtime.Int64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "note_id", err)
@@ -175,7 +175,7 @@ func request_OcpNoteApi_RemoveNoteV1_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "note_id")
 	}
 
-	protoReq.NoteId, err = runtime.Uint64(val)
+	protoReq.NoteId, err = runtime.Int64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "note_id", err)
@@ -202,7 +202,7 @@ func local_request_OcpNoteApi_RemoveNoteV1_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "note_id")
 	}
 
-	protoReq.NoteId, err = runtime.Uint64(val)
+	protoReq.NoteId, err = runtime.Int64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "note_id", err)
