@@ -1,13 +1,15 @@
 package flusher
 
 import (
+	"context"
+
 	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	"github.com/ozoncp/ocp-note-api/internal/utils"
 )
 
 type Flusher interface {
-	Flush(notes []note.Note) []note.Note
+	Flush(ctx context.Context, notes []note.Note) []note.Note
 }
 
 type flusher struct {
@@ -22,13 +24,13 @@ func New(storage repo.Repo, chunkSize int) Flusher {
 	}
 }
 
-func (f *flusher) Flush(notes []note.Note) []note.Note {
+func (f *flusher) Flush(ctx context.Context, notes []note.Note) []note.Note {
 
 	chunks := utils.SplitNoteSlice(notes, f.chunkSize)
 	var successPos = 0
 
 	for _, val := range chunks {
-		if err := f.storage.AddNotes(val); err != nil {
+		if err := f.storage.AddNotes(ctx, val); err != nil {
 			return notes[successPos:]
 		}
 

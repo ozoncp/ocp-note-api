@@ -6,15 +6,28 @@ import (
 	"net"
 	"os"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/ozoncp/ocp-note-api/core/api"
+	"github.com/ozoncp/ocp-note-api/core/repo"
 	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/lib/pq"
 )
 
 var grpcPort int
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "inferno04"
+	dbname   = "testdb"
+)
 
 func init() {
 	flag.IntVar(&grpcPort, "port", 1235, "GRPC server port")
@@ -35,7 +48,19 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi())
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := sqlx.Open("pgx", psqlInfo)
+
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to create connect to database")
+	}
+
+	repo := repo.New(*db)
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo))
 
 	if err = grpcServer.Serve(lis); err != nil {
 		log.Fatal().Err(err).Msg("Cannot accept connections")

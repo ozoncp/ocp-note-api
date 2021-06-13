@@ -47,9 +47,11 @@ func (mr *MockSaverMockRecorder) Close() *gomock.Call {
 }
 
 // Init mocks base method.
-func (m *MockSaver) Init() {
+func (m *MockSaver) Init() error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Init")
+	ret := m.ctrl.Call(m, "Init")
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Init indicates an expected call of Init.

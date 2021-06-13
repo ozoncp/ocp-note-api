@@ -4,9 +4,9 @@ import "fmt"
 
 type Note struct {
 	Id          uint64
-	UserId      uint
-	ClassroomId uint
-	DocumentId  uint
+	UserId      uint32
+	ClassroomId uint32
+	DocumentId  uint32
 }
 
 func (n *Note) Create() {
