@@ -37,6 +37,9 @@ var _ = Describe("Api", func() {
 		createRequest  *desc.CreateNoteV1Request
 		createResponse *desc.CreateNoteV1Response
 
+		multiCreateNotesV1Request  *desc.MultiCreateNotesV1Request
+		multiCreateNotesV1Response *desc.MultiCreateNotesV1Response
+
 		describeRequest  *desc.DescribeNoteV1Request
 		describeResponse *desc.DescribeNoteV1Response
 
@@ -67,6 +70,89 @@ var _ = Describe("Api", func() {
 		mock.ExpectClose()
 		err = db.Close()
 		Expect(err).Should(BeNil())
+	})
+
+	Context("multi create notes with invalid arguments", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{{
+					UserId:      -1,
+					ClassroomId: 1,
+					DocumentId:  1,
+				}},
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("failed notes multi creation due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(multiCreateNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful notes multi creation", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{
+					{
+						UserId:      int32(notes[0].UserId),
+						ClassroomId: int32(notes[0].ClassroomId),
+						DocumentId:  int32(notes[0].DocumentId),
+					},
+					{
+						UserId:      int32(notes[1].UserId),
+						ClassroomId: int32(notes[1].ClassroomId),
+						DocumentId:  int32(notes[1].DocumentId),
+					}},
+			}
+
+			mock.ExpectExec("INSERT INTO notes").
+				WithArgs(notes[0].UserId, notes[0].ClassroomId, notes[0].DocumentId, notes[1].UserId, notes[1].ClassroomId, notes[1].DocumentId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(multiCreateNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("multi create notes", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{
+					{
+						UserId:      int32(notes[0].UserId),
+						ClassroomId: int32(notes[0].ClassroomId),
+						DocumentId:  int32(notes[0].DocumentId),
+					},
+					{
+						UserId:      int32(notes[1].UserId),
+						ClassroomId: int32(notes[1].ClassroomId),
+						DocumentId:  int32(notes[1].DocumentId),
+					}},
+			}
+
+			mock.ExpectExec("INSERT INTO notes").
+				WithArgs(notes[0].UserId, notes[0].ClassroomId, notes[0].DocumentId, notes[1].UserId, notes[1].ClassroomId, notes[1].DocumentId).
+				WillReturnResult(sqlmock.NewResult(0, 2))
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("successful multi creation of a notes in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(multiCreateNotesV1Response.NumberOfNotesCreated).Should(Equal(uint64(len(notes))))
+		})
 	})
 
 	Context("create note with invalid arguments", func() {
