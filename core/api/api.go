@@ -102,6 +102,31 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 	}, nil
 }
 
+func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Request) (*desc.UpdateNoteV1Response, error) {
+	log.Info().Msgf("Update note (id: %d) ...", request.Note.Id)
+
+	if err := request.Validate(); err != nil {
+		log.Error().Err(err).Msg("invalid argument")
+		return nil, err
+	}
+
+	note := &note.Note{
+		Id:          uint64(request.Note.Id),
+		UserId:      uint32(request.Note.UserId),
+		ClassroomId: uint32(request.Note.ClassroomId),
+		DocumentId:  uint32(request.Note.DocumentId),
+	}
+
+	if err := a.repo.UpdateNote(ctx, note); err != nil {
+		log.Error().Err(err).Msg("failed to update note")
+		return &desc.UpdateNoteV1Response{Found: false}, nil
+	}
+
+	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)
+
+	return &desc.UpdateNoteV1Response{Found: true}, nil
+}
+
 func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Request) (*desc.DescribeNoteV1Response, error) {
 	log.Info().Msg("Desribe note ...")
 
