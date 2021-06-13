@@ -13,12 +13,13 @@
   "paths": {
     "/v1/note": {
       "post": {
-        "operationId": "OcpNoteApi_CreateNoteV1",
+        "summary": "Update note",
+        "operationId": "OcpNoteApi_UpdateNoteV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiCreateNoteV1Response"
+              "$ref": "#/definitions/apiUpdateNoteV1Response"
             }
           },
           "default": {
@@ -35,6 +36,7 @@
     },
     "/v1/notes": {
       "get": {
+        "summary": "List notes",
         "operationId": "OcpNoteApi_ListNotesV1",
         "responses": {
           "200": {
@@ -71,6 +73,7 @@
         ]
       },
       "post": {
+        "summary": "Multi create notes",
         "operationId": "OcpNoteApi_MultiCreateNotesV1",
         "responses": {
           "200": {
@@ -93,6 +96,7 @@
     },
     "/v1/notes/{note_id}": {
       "get": {
+        "summary": "Describe note",
         "operationId": "OcpNoteApi_DescribeNoteV1",
         "responses": {
           "200": {
@@ -122,6 +126,7 @@
         ]
       },
       "delete": {
+        "summary": "Remove note",
         "operationId": "OcpNoteApi_RemoveNoteV1",
         "responses": {
           "200": {
@@ -212,23 +217,31 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "uint64"
+          "format": "int64"
         },
         "user_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "classroom_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "document_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         }
       }
     },
     "apiRemoveNoteV1Response": {
+      "type": "object",
+      "properties": {
+        "found": {
+          "type": "boolean"
+        }
+      }
+    },
+    "apiUpdateNoteV1Response": {
       "type": "object",
       "properties": {
         "found": {
