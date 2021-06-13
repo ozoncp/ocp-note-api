@@ -78,4 +78,25 @@ var _ = Describe("Api", func() {
 			Expect(createResponse.NoteId).Should(Equal(id))
 		})
 	})
+
+	Context("create note with invalid arguments", func() {
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      -1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("failed note creation due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(createResponse).Should(BeNil())
+		})
+	})
 })
