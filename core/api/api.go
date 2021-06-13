@@ -49,6 +49,41 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 	return &desc.CreateNoteV1Response{NoteId: noteId}, nil
 }
 
+func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateNotesV1Request) (*desc.MultiCreateNotesV1Response, error) {
+	log.Info().Msg("Multi create notes ...")
+
+	if err := request.Validate(); err != nil {
+		log.Error().Err(err).Msg("invalid argument")
+		return nil, err
+	}
+
+	var notes []note.Note
+
+	for _, val := range request.Notes {
+
+		note := &note.Note{
+			UserId:      uint32(val.UserId),
+			ClassroomId: uint32(val.ClassroomId),
+			DocumentId:  uint32(val.DocumentId),
+		}
+
+		notes = append(notes, *note)
+	}
+
+	numberOfNotesCreated, err := a.repo.AddNotes(ctx, notes)
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to multi create notes")
+		return nil, err
+	}
+
+	log.Info().Msgf("Multi create notes success")
+
+	return &desc.MultiCreateNotesV1Response{
+		NumberOfNotesCreated: numberOfNotesCreated,
+	}, nil
+}
+
 func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Request) (*desc.DescribeNoteV1Response, error) {
 	log.Info().Msg("Desribe note ...")
 
