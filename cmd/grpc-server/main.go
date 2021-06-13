@@ -60,7 +60,7 @@ func main() {
 	}
 
 	repo := repo.New(*db)
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo))
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, 2))
 
 	if err = grpcServer.Serve(lis); err != nil {
 		log.Fatal().Err(err).Msg("Cannot accept connections")
