@@ -195,15 +195,15 @@
       "properties": {
         "user_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "classroom_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         },
         "document_id": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
         }
       }
     },
