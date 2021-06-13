@@ -128,9 +128,7 @@ var _ = Describe("Api", func() {
 
 	Context("describe note with invalid arguments", func() {
 
-		var (
-			id uint64 = 1
-		)
+		var id uint64 = 1
 
 		BeforeEach(func() {
 			describeRequest = &desc.DescribeNoteV1Request{
@@ -144,6 +142,28 @@ var _ = Describe("Api", func() {
 		})
 
 		It("could not get the description of the note due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(describeResponse).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful receipt of the description of the note", func() {
+
+		var id uint64 = 1
+
+		BeforeEach(func() {
+			describeRequest = &desc.DescribeNoteV1Request{
+				NoteId: int64(id),
+			}
+
+			mock.ExpectQuery("SELECT (.+) FROM notes WHERE").
+				WithArgs(describeRequest.NoteId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			describeResponse, err = grpcApi.DescribeNoteV1(ctx, describeRequest)
+		})
+
+		It("failed to execute sql request", func() {
 			Expect(err).ShouldNot(BeNil())
 			Expect(describeResponse).Should(BeNil())
 		})
