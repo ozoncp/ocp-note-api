@@ -341,6 +341,152 @@ var _ interface {
 	ErrorName() string
 } = MultiCreateNotesV1ResponseValidationError{}
 
+// Validate checks the field values on UpdateNoteV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateNoteV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetNote()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateNoteV1RequestValidationError{
+				field:  "Note",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// UpdateNoteV1RequestValidationError is the validation error returned by
+// UpdateNoteV1Request.Validate if the designated constraints aren't met.
+type UpdateNoteV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateNoteV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateNoteV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateNoteV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateNoteV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateNoteV1RequestValidationError) ErrorName() string {
+	return "UpdateNoteV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateNoteV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateNoteV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateNoteV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateNoteV1RequestValidationError{}
+
+// Validate checks the field values on UpdateNoteV1Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *UpdateNoteV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Found
+
+	return nil
+}
+
+// UpdateNoteV1ResponseValidationError is the validation error returned by
+// UpdateNoteV1Response.Validate if the designated constraints aren't met.
+type UpdateNoteV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateNoteV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateNoteV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateNoteV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateNoteV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateNoteV1ResponseValidationError) ErrorName() string {
+	return "UpdateNoteV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateNoteV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateNoteV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateNoteV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateNoteV1ResponseValidationError{}
+
 // Validate checks the field values on DescribeNoteV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -805,13 +951,33 @@ func (m *Note) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		return NoteValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for UserId
+	if m.GetUserId() <= 0 {
+		return NoteValidationError{
+			field:  "UserId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return NoteValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for DocumentId
+	if m.GetDocumentId() <= 0 {
+		return NoteValidationError{
+			field:  "DocumentId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }

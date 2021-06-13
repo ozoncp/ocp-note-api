@@ -20,6 +20,13 @@ service OcpNoteApi {
         };
     }
 
+    // Update project
+    rpc UpdateNoteV1(UpdateNoteV1Request) returns (UpdateNoteV1Response) {
+        option (google.api.http) = {
+            post: "/v1/note"
+        };
+    }
+
     rpc DescribeNoteV1(DescribeNoteV1Request) returns (DescribeNoteV1Response) {
         option (google.api.http) = {
             get: "/v1/notes/{note_id}"
@@ -57,6 +64,14 @@ message MultiCreateNotesV1Response {
     uint64 number_of_notes_created = 1;
 }
 
+message UpdateNoteV1Request {
+    Note note = 1;
+}
+
+message UpdateNoteV1Response {
+    bool found = 1;
+}
+
 message DescribeNoteV1Request {
     int64 note_id = 1 [(validate.rules).int64.gt = 0];
 }
@@ -83,10 +98,10 @@ message RemoveNoteV1Response {
 }
 
 message Note {
-    uint64 id = 1;
-    uint32 user_id = 2;
-    uint32 classroom_id = 3;
-    uint32 document_id = 4;
+    int64 id = 1 [(validate.rules).int64.gt = 0];
+    int32 user_id = 2 [(validate.rules).int32.gt = 0];
+    int32 classroom_id = 3 [(validate.rules).int32.gt = 0];
+    int32 document_id = 4 [(validate.rules).int32.gt = 0];
 }
 
 message NewNote {
