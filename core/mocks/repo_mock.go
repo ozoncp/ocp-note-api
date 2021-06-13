@@ -108,3 +108,18 @@ func (mr *MockRepoMockRecorder) RemoveNote(arg0, arg1 interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveNote", reflect.TypeOf((*MockRepo)(nil).RemoveNote), arg0, arg1)
 }
+
+// UpdateNote mocks base method.
+func (m *MockRepo) UpdateNote(arg0 context.Context, arg1 *note.Note) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateNote", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateNote indicates an expected call of UpdateNote.
+func (mr *MockRepoMockRecorder) UpdateNote(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNote", reflect.TypeOf((*MockRepo)(nil).UpdateNote), arg0, arg1)
+}
