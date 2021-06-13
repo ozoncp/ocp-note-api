@@ -30,7 +30,7 @@ const (
 )
 
 func init() {
-	flag.IntVar(&grpcPort, "port", 1235, "GRPC server port")
+	flag.IntVar(&grpcPort, "port", 7002, "GRPC server port")
 }
 
 func main() {
@@ -58,6 +58,11 @@ func main() {
 
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create connect to database")
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Error().Err(err).Msgf("failed to ping to database")
 	}
 
 	repo := repo.New(*db)
