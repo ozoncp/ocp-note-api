@@ -141,7 +141,7 @@ var _ = Describe("Saver", func() {
 
 				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
-				}).Return(nil)
+				}).Return(uint64(0), nil)
 
 				for i := 0; i < int(notesNum); i++ {
 					saverTest.Save(note.Note{
@@ -176,7 +176,7 @@ var _ = Describe("Saver", func() {
 
 				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
-				}).Return(nil)
+				}).Return(uint64(0), nil)
 
 				for i := 0; i < int(notesNum); i++ {
 					saverTest.Save(note.Note{
@@ -213,7 +213,7 @@ var _ = Describe("Saver", func() {
 
 				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
-				}).Return(nil)
+				}).Return(uint64(0), nil)
 
 				for i := 0; i < int(notesNum); i++ {
 					saverTest.Save(note.Note{
@@ -258,7 +258,7 @@ var _ = Describe("Saver", func() {
 
 				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
-				}).Return(nil)
+				}).Return(uint64(0), nil)
 
 				for i := 0; i < int(notesNum); i++ {
 					saverTest.Save(note.Note{
