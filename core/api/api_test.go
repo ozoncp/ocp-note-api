@@ -3,6 +3,7 @@ package api_test
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -95,6 +96,28 @@ var _ = Describe("Api", func() {
 		})
 
 		It("failed note creation due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(createResponse).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful note creation", func() {
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			mock.ExpectQuery("INSERT INTO notes").
+				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("failed to execute sql request", func() {
 			Expect(err).ShouldNot(BeNil())
 			Expect(createResponse).Should(BeNil())
 		})
