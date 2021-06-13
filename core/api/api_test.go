@@ -35,6 +35,9 @@ var _ = Describe("Api", func() {
 		createRequest  *desc.CreateNoteV1Request
 		createResponse *desc.CreateNoteV1Response
 
+		describeRequest  *desc.DescribeNoteV1Request
+		describeResponse *desc.DescribeNoteV1Response
+
 		err error
 	)
 
@@ -120,6 +123,38 @@ var _ = Describe("Api", func() {
 		It("successful creation of a note in the database", func() {
 			Expect(err).Should(BeNil())
 			Expect(createResponse.NoteId).Should(Equal(id))
+		})
+	})
+
+	Context("describe note", func() {
+
+		var (
+			id           uint64 = 1
+			user_id      uint32 = 1
+			classroom_id uint32 = 1
+			document_id  uint32 = 1
+		)
+
+		BeforeEach(func() {
+			describeRequest = &desc.DescribeNoteV1Request{
+				NoteId: int64(id),
+			}
+
+			mock.ExpectQuery("SELECT (.+) FROM notes WHERE").
+				WithArgs(describeRequest.NoteId).
+				WillReturnRows(sqlmock.
+					NewRows([]string{"id", "user_id", "classroom_id", "document_id"}).
+					AddRow(id, user_id, classroom_id, document_id))
+
+			describeResponse, err = grpcApi.DescribeNoteV1(ctx, describeRequest)
+		})
+
+		It("successful receipt of the note description", func() {
+			Expect(err).Should(BeNil())
+			Expect(describeResponse.Note.Id).Should(Equal(id))
+			Expect(describeResponse.Note.UserId).Should(Equal(user_id))
+			Expect(describeResponse.Note.ClassroomId).Should(Equal(classroom_id))
+			Expect(describeResponse.Note.DocumentId).Should(Equal(document_id))
 		})
 	})
 })
