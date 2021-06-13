@@ -40,6 +40,9 @@ var _ = Describe("Api", func() {
 		multiCreateNotesV1Request  *desc.MultiCreateNotesV1Request
 		multiCreateNotesV1Response *desc.MultiCreateNotesV1Response
 
+		updateNoteV1Request  *desc.UpdateNoteV1Request
+		updateNoteV1Response *desc.UpdateNoteV1Response
+
 		describeRequest  *desc.DescribeNoteV1Request
 		describeResponse *desc.DescribeNoteV1Response
 
@@ -70,6 +73,73 @@ var _ = Describe("Api", func() {
 		mock.ExpectClose()
 		err = db.Close()
 		Expect(err).Should(BeNil())
+	})
+
+	Context("create note with invalid arguments", func() {
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      -1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("failed note creation due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(createResponse).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful note creation", func() {
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			mock.ExpectQuery("INSERT INTO notes").
+				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(createResponse).Should(BeNil())
+		})
+	})
+
+	Context("create note", func() {
+
+		var id uint64 = 1
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			mock.ExpectQuery("INSERT INTO notes").
+				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("successful creation of a note in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(createResponse.NoteId).Should(Equal(id))
+		})
 	})
 
 	Context("multi create notes with invalid arguments", func() {
@@ -155,80 +225,86 @@ var _ = Describe("Api", func() {
 		})
 	})
 
-	Context("create note with invalid arguments", func() {
+	Context("update note with invalid arguments", func() {
 
 		BeforeEach(func() {
-			createRequest = &desc.CreateNoteV1Request{
-				UserId:      -1,
-				ClassroomId: 1,
-				DocumentId:  1,
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      -1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
 			}
 
 			// setting the wait for the mock request is not required,
 			// since the error will return earlier due to invalid arguments
 
-			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
 		})
 
-		It("failed note creation due to invalid arguments", func() {
+		It("failed note updating due to invalid arguments", func() {
 			Expect(err).ShouldNot(BeNil())
-			Expect(createResponse).Should(BeNil())
+			Expect(updateNoteV1Response).Should(BeNil())
 		})
 	})
 
-	Context("unsuccessful note creation", func() {
+	Context("unsuccessful note updating", func() {
 
 		BeforeEach(func() {
-			createRequest = &desc.CreateNoteV1Request{
-				UserId:      1,
-				ClassroomId: 1,
-				DocumentId:  1,
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
 			}
 
-			mock.ExpectQuery("INSERT INTO notes").
-				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+			mock.ExpectExec("UPDATE notes").
+				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
 				WillReturnError(errors.New("failed to execute sql request"))
 
-			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
 		})
 
 		It("failed to execute sql request", func() {
-			Expect(err).ShouldNot(BeNil())
-			Expect(createResponse).Should(BeNil())
+			Expect(updateNoteV1Response.Found).Should(Equal(false))
 		})
 	})
 
-	Context("create note", func() {
-
-		var id uint64 = 1
+	Context("update note", func() {
 
 		BeforeEach(func() {
-			createRequest = &desc.CreateNoteV1Request{
-				UserId:      1,
-				ClassroomId: 1,
-				DocumentId:  1,
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
 			}
 
-			mock.ExpectQuery("INSERT INTO notes").
-				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
-				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+			mock.ExpectExec("UPDATE notes").
+				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
+				WillReturnResult(sqlmock.NewResult(0, 1))
 
-			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
 		})
 
-		It("successful creation of a note in the database", func() {
+		It("successful updating of a note in the database", func() {
 			Expect(err).Should(BeNil())
-			Expect(createResponse.NoteId).Should(Equal(id))
+			Expect(updateNoteV1Response.Found).Should(Equal(true))
 		})
 	})
 
 	Context("describe note with invalid arguments", func() {
 
-		var id uint64 = 1
+		var id int64 = 1
 
 		BeforeEach(func() {
 			describeRequest = &desc.DescribeNoteV1Request{
-				NoteId: int64(id),
+				NoteId: id,
 			}
 
 			// setting the wait for the mock request is not required,
@@ -245,11 +321,11 @@ var _ = Describe("Api", func() {
 
 	Context("unsuccessful receipt of the description of the note", func() {
 
-		var id uint64 = 1
+		var id int64 = 1
 
 		BeforeEach(func() {
 			describeRequest = &desc.DescribeNoteV1Request{
-				NoteId: int64(id),
+				NoteId: id,
 			}
 
 			mock.ExpectQuery("SELECT (.+) FROM notes WHERE").
