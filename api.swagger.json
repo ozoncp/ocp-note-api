@@ -11,6 +11,28 @@
     "application/json"
   ],
   "paths": {
+    "/v1/note": {
+      "post": {
+        "operationId": "OcpNoteApi_CreateNoteV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateNoteV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "tags": [
+          "OcpNoteApi"
+        ]
+      }
+    },
     "/v1/notes": {
       "get": {
         "operationId": "OcpNoteApi_ListNotesV1",
@@ -49,12 +71,12 @@
         ]
       },
       "post": {
-        "operationId": "OcpNoteApi_CreateNoteV1",
+        "operationId": "OcpNoteApi_MultiCreateNotesV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiCreateNoteV1Response"
+              "$ref": "#/definitions/apiMultiCreateNotesV1Response"
             }
           },
           "default": {
@@ -156,6 +178,32 @@
           "items": {
             "$ref": "#/definitions/apiNote"
           }
+        }
+      }
+    },
+    "apiMultiCreateNotesV1Response": {
+      "type": "object",
+      "properties": {
+        "number_of_notes_created": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiNewNote": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "classroom_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "document_id": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
