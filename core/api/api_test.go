@@ -46,7 +46,8 @@ var _ = Describe("Api", func() {
 		removeNoteV1Request  *desc.RemoveNoteV1Request
 		removeNoteV1Response *desc.RemoveNoteV1Response
 
-		err error
+		err       error
+		chunkSize uint32
 	)
 
 	BeforeEach(func() {
@@ -58,7 +59,8 @@ var _ = Describe("Api", func() {
 		sqlxDB = sqlx.NewDb(db, "sqlmock")
 
 		storage = repo.New(*sqlxDB)
-		grpcApi = api.NewOcpNoteApi(storage)
+		chunkSize = 5
+		grpcApi = api.NewOcpNoteApi(storage, chunkSize)
 	})
 
 	AfterEach(func() {
