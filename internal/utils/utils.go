@@ -53,7 +53,7 @@ func SplitNoteSlice(data []note.Note, batchSize uint32) [][]note.Note {
 	sliceOfBatches := make([][]note.Note, 0, numberOfBatches)
 
 	for i := 0; i < len(data); {
-		end := i + batchSize
+		end := i + int(batchSize)
 
 		if end > len(data) {
 			end = len(data)
