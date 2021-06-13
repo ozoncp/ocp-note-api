@@ -56,30 +56,6 @@ var _ = Describe("Api", func() {
 		Expect(err).Should(BeNil())
 	})
 
-	Context("create note", func() {
-
-		var id uint64 = 1
-
-		BeforeEach(func() {
-			createRequest = &desc.CreateNoteV1Request{
-				UserId:      1,
-				ClassroomId: 1,
-				DocumentId:  1,
-			}
-
-			mock.ExpectQuery("INSERT INTO notes").
-				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
-				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
-
-			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
-		})
-
-		It("successful creation of a note in the database", func() {
-			Expect(err).Should(BeNil())
-			Expect(createResponse.NoteId).Should(Equal(id))
-		})
-	})
-
 	Context("create note with invalid arguments", func() {
 
 		BeforeEach(func() {
@@ -120,6 +96,30 @@ var _ = Describe("Api", func() {
 		It("failed to execute sql request", func() {
 			Expect(err).ShouldNot(BeNil())
 			Expect(createResponse).Should(BeNil())
+		})
+	})
+
+	Context("create note", func() {
+
+		var id uint64 = 1
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			mock.ExpectQuery("INSERT INTO notes").
+				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("successful creation of a note in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(createResponse.NoteId).Should(Equal(id))
 		})
 	})
 })
