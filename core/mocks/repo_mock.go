@@ -110,12 +110,11 @@ func (mr *MockRepoMockRecorder) RemoveNote(arg0, arg1 interface{}) *gomock.Call 
 }
 
 // UpdateNote mocks base method.
-func (m *MockRepo) UpdateNote(arg0 context.Context, arg1 *note.Note) (uint64, error) {
+func (m *MockRepo) UpdateNote(arg0 context.Context, arg1 *note.Note) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateNote", arg0, arg1)
-	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateNote indicates an expected call of UpdateNote.
