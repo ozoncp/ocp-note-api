@@ -54,6 +54,7 @@ func main() {
 		host, port, user, password, dbname)
 
 	db, err := sqlx.Open("pgx", psqlInfo)
+	defer db.Close()
 
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create connect to database")
