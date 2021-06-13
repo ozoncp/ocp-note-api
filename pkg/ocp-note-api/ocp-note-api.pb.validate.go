@@ -877,11 +877,26 @@ func (m *NewNote) Validate() error {
 		return nil
 	}
 
-	// no validation rules for UserId
+	if m.GetUserId() <= 0 {
+		return NewNoteValidationError{
+			field:  "UserId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return NewNoteValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for DocumentId
+	if m.GetDocumentId() <= 0 {
+		return NewNoteValidationError{
+			field:  "DocumentId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }

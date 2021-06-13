@@ -90,7 +90,7 @@ message Note {
 }
 
 message NewNote {
-    uint32 user_id = 1;
-    uint32 classroom_id = 2;
-    uint32 document_id = 3;
+    int32 user_id = 1 [(validate.rules).int32.gt = 0];
+    int32 classroom_id = 2 [(validate.rules).int32.gt = 0];
+    int32 document_id = 3 [(validate.rules).int32.gt = 0];
   }
