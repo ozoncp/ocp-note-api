@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -11,6 +12,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ozoncp/ocp-note-api/core/api"
+	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 )
@@ -24,10 +26,10 @@ var _ = Describe("Api", func() {
 		sqlxDB *sqlx.DB
 		mock   sqlmock.Sqlmock
 
-		// note = []note.Note{
-		// 	{Id: 1, UserId: 1, ClassroomId: 1, DocumentId: 1},
-		// 	{Id: 2, UserId: 2, ClassroomId: 2, DocumentId: 2},
-		// }
+		notes = []note.Note{
+			{Id: 1, UserId: 1, ClassroomId: 1, DocumentId: 1},
+			{Id: 2, UserId: 2, ClassroomId: 2, DocumentId: 2},
+		}
 
 		storage repo.Repo
 		grpcApi desc.OcpNoteApiServer
@@ -37,6 +39,9 @@ var _ = Describe("Api", func() {
 
 		describeRequest  *desc.DescribeNoteV1Request
 		describeResponse *desc.DescribeNoteV1Response
+
+		listNotesV1Request  *desc.ListNotesV1Request
+		listNotesV1Response *desc.ListNotesV1Response
 
 		err error
 	)
@@ -198,6 +203,94 @@ var _ = Describe("Api", func() {
 			Expect(describeResponse.Note.UserId).Should(Equal(user_id))
 			Expect(describeResponse.Note.ClassroomId).Should(Equal(classroom_id))
 			Expect(describeResponse.Note.DocumentId).Should(Equal(document_id))
+		})
+	})
+
+	Context("list notes with invalid arguments", func() {
+
+		var (
+			limit  uint64 = 0
+			offset uint64 = 0
+		)
+
+		BeforeEach(func() {
+			listNotesV1Request = &desc.ListNotesV1Request{
+				Limit:  int64(limit),
+				Offset: int64(offset),
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			listNotesV1Response, err = grpcApi.ListNotesV1(ctx, listNotesV1Request)
+		})
+
+		It("failed to get the list of notes due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(listNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful retrieval of the list of notes", func() {
+
+		var (
+			limit  uint64 = 10
+			offset uint64 = 1
+		)
+
+		BeforeEach(func() {
+			listNotesV1Request = &desc.ListNotesV1Request{
+				Limit:  int64(limit),
+				Offset: int64(offset),
+			}
+
+			query := fmt.Sprintf("SELECT (.+) FROM notes LIMIT %d OFFSET %d", listNotesV1Request.Limit, listNotesV1Request.Offset)
+			mock.ExpectQuery(query).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			listNotesV1Response, err = grpcApi.ListNotesV1(ctx, listNotesV1Request)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(listNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("list notes", func() {
+
+		var (
+			limit  uint64 = 10
+			offset uint64 = 1
+		)
+
+		BeforeEach(func() {
+			listNotesV1Request = &desc.ListNotesV1Request{
+				Limit:  int64(limit),
+				Offset: int64(offset),
+			}
+
+			query := fmt.Sprintf("SELECT (.+) FROM notes LIMIT %d OFFSET %d", listNotesV1Request.Limit, listNotesV1Request.Offset)
+			mock.ExpectQuery(query).
+				WillReturnRows(sqlmock.
+					NewRows([]string{"id", "user_id", "classroom_id", "document_id"}).
+					AddRow(notes[0].Id, notes[0].UserId, notes[0].ClassroomId, notes[0].DocumentId).
+					AddRow(notes[1].Id, notes[1].UserId, notes[1].ClassroomId, notes[1].DocumentId))
+
+			listNotesV1Response, err = grpcApi.ListNotesV1(ctx, listNotesV1Request)
+		})
+
+		It("successful retrieval of the list of notes", func() {
+			Expect(err).Should(BeNil())
+			Expect(listNotesV1Response.Notes[0].Id).Should(Equal(notes[0].Id))
+			Expect(listNotesV1Response.Notes[0].UserId).Should(Equal(notes[0].UserId))
+			Expect(listNotesV1Response.Notes[0].ClassroomId).Should(Equal(notes[0].ClassroomId))
+			Expect(listNotesV1Response.Notes[0].DocumentId).Should(Equal(notes[0].DocumentId))
+
+			Expect(listNotesV1Response.Notes[1].Id).Should(Equal(notes[1].Id))
+			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(notes[1].UserId))
+			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(notes[1].ClassroomId))
+			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(notes[1].DocumentId))
 		})
 	})
 })
