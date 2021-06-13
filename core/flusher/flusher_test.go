@@ -31,7 +31,7 @@ var _ = Describe("Flusher", func() {
 
 		f flusher.Flusher
 
-		chunkSize int
+		chunkSize uint32
 	)
 
 	BeforeEach(func() {
@@ -81,7 +81,7 @@ var _ = Describe("Flusher", func() {
 	Context("when the repo is wrong half the time", func() {
 		BeforeEach(func() {
 			notes = []note.Note{{}, {}}
-			chunkSize = len(notes) / 2
+			chunkSize = uint32(len(notes) / 2)
 
 			gomock.InOrder(
 				mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(nil),

@@ -13,11 +13,11 @@ type Flusher interface {
 }
 
 type flusher struct {
-	chunkSize int
+	chunkSize uint32
 	storage   repo.Repo
 }
 
-func New(storage repo.Repo, chunkSize int) Flusher {
+func New(storage repo.Repo, chunkSize uint32) Flusher {
 	return &flusher{
 		storage:   storage,
 		chunkSize: chunkSize,
@@ -30,7 +30,7 @@ func (f *flusher) Flush(ctx context.Context, notes []note.Note) []note.Note {
 	var successPos = 0
 
 	for _, val := range chunks {
-		if err := f.storage.AddNotes(ctx, val); err != nil {
+		if _, err := f.storage.AddNotes(ctx, val); err != nil {
 			return notes[successPos:]
 		}
 
