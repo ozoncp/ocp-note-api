@@ -77,7 +77,9 @@ func (r *repo) UpdateNote(ctx context.Context, note *note.Note) error {
 		Set("user_id", note.UserId).
 		Set("classroom_id", note.ClassroomId).
 		Set("document_id", note.DocumentId).
-		Where(sq.Eq{"id": note.Id})
+		Where(sq.Eq{"id": note.Id}).
+		RunWith(r.db).
+		PlaceholderFormat(sq.Dollar)
 
 	result, err := query.ExecContext(ctx)
 
