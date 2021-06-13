@@ -126,6 +126,29 @@ var _ = Describe("Api", func() {
 		})
 	})
 
+	Context("describe note with invalid arguments", func() {
+
+		var (
+			id uint64 = 1
+		)
+
+		BeforeEach(func() {
+			describeRequest = &desc.DescribeNoteV1Request{
+				NoteId: int64(id),
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			describeResponse, err = grpcApi.DescribeNoteV1(ctx, describeRequest)
+		})
+
+		It("could not get the description of the note due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(describeResponse).Should(BeNil())
+		})
+	})
+
 	Context("describe note", func() {
 
 		var (
