@@ -8,37 +8,42 @@ package ocp.note.api;
 option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_api";
 
 service OcpNoteApi {
+    // Create note
     rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
         option (google.api.http) = {
             post: "/v1/note"
         };
     }
 
+    // Multi create notes
     rpc MultiCreateNotesV1(MultiCreateNotesV1Request) returns (MultiCreateNotesV1Response) {
         option (google.api.http) = {
             post: "/v1/notes"
         };
     }
 
-    // Update project
+    // Update note
     rpc UpdateNoteV1(UpdateNoteV1Request) returns (UpdateNoteV1Response) {
         option (google.api.http) = {
             post: "/v1/note"
         };
     }
 
+    // Describe note
     rpc DescribeNoteV1(DescribeNoteV1Request) returns (DescribeNoteV1Response) {
         option (google.api.http) = {
             get: "/v1/notes/{note_id}"
         };
     }
 
+    // List notes
     rpc ListNotesV1(ListNotesV1Request) returns (ListNotesV1Response) {
         option (google.api.http) = {
             get: "/v1/notes"
         };
     }
 
+    // Remove note
     rpc RemoveNoteV1(RemoveNoteV1Request) returns (RemoveNoteV1Response) {
         option (google.api.http) = {
             delete: "/v1/notes/{note_id}"

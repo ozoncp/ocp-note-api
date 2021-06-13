@@ -18,12 +18,17 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OcpNoteApiClient interface {
+	// Create note
 	CreateNoteV1(ctx context.Context, in *CreateNoteV1Request, opts ...grpc.CallOption) (*CreateNoteV1Response, error)
+	// Multi create notes
 	MultiCreateNotesV1(ctx context.Context, in *MultiCreateNotesV1Request, opts ...grpc.CallOption) (*MultiCreateNotesV1Response, error)
-	// Update project
+	// Update note
 	UpdateNoteV1(ctx context.Context, in *UpdateNoteV1Request, opts ...grpc.CallOption) (*UpdateNoteV1Response, error)
+	// Describe note
 	DescribeNoteV1(ctx context.Context, in *DescribeNoteV1Request, opts ...grpc.CallOption) (*DescribeNoteV1Response, error)
+	// List notes
 	ListNotesV1(ctx context.Context, in *ListNotesV1Request, opts ...grpc.CallOption) (*ListNotesV1Response, error)
+	// Remove note
 	RemoveNoteV1(ctx context.Context, in *RemoveNoteV1Request, opts ...grpc.CallOption) (*RemoveNoteV1Response, error)
 }
 
@@ -93,12 +98,17 @@ func (c *ocpNoteApiClient) RemoveNoteV1(ctx context.Context, in *RemoveNoteV1Req
 // All implementations must embed UnimplementedOcpNoteApiServer
 // for forward compatibility
 type OcpNoteApiServer interface {
+	// Create note
 	CreateNoteV1(context.Context, *CreateNoteV1Request) (*CreateNoteV1Response, error)
+	// Multi create notes
 	MultiCreateNotesV1(context.Context, *MultiCreateNotesV1Request) (*MultiCreateNotesV1Response, error)
-	// Update project
+	// Update note
 	UpdateNoteV1(context.Context, *UpdateNoteV1Request) (*UpdateNoteV1Response, error)
+	// Describe note
 	DescribeNoteV1(context.Context, *DescribeNoteV1Request) (*DescribeNoteV1Response, error)
+	// List notes
 	ListNotesV1(context.Context, *ListNotesV1Request) (*ListNotesV1Response, error)
+	// Remove note
 	RemoveNoteV1(context.Context, *RemoveNoteV1Request) (*RemoveNoteV1Response, error)
 	mustEmbedUnimplementedOcpNoteApiServer()
 }
