@@ -43,6 +43,9 @@ var _ = Describe("Api", func() {
 		listNotesV1Request  *desc.ListNotesV1Request
 		listNotesV1Response *desc.ListNotesV1Response
 
+		removeNoteV1Request  *desc.RemoveNoteV1Request
+		removeNoteV1Response *desc.RemoveNoteV1Response
+
 		err error
 	)
 
@@ -291,6 +294,64 @@ var _ = Describe("Api", func() {
 			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(notes[1].UserId))
 			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(notes[1].ClassroomId))
 			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(notes[1].DocumentId))
+		})
+	})
+
+	Context("remove note with invalid arguments", func() {
+
+		BeforeEach(func() {
+			removeNoteV1Request = &desc.RemoveNoteV1Request{
+				NoteId: -1,
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
+		})
+
+		It("failed note removal due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(removeNoteV1Response).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful note removal", func() {
+
+		BeforeEach(func() {
+			removeNoteV1Request = &desc.RemoveNoteV1Request{
+				NoteId: 1,
+			}
+
+			mock.ExpectExec("DELETE FROM notes").
+				WithArgs(removeNoteV1Request.NoteId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(removeNoteV1Response.Found).Should(Equal(false))
+		})
+	})
+
+	Context("remove note", func() {
+
+		BeforeEach(func() {
+			removeNoteV1Request = &desc.RemoveNoteV1Request{
+				NoteId: 1,
+			}
+
+			mock.ExpectExec("DELETE FROM notes").
+				WithArgs(removeNoteV1Request.NoteId).
+				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
+		})
+
+		It("successful removal of a note in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(removeNoteV1Response.Found).Should(Equal(true))
 		})
 	})
 })
