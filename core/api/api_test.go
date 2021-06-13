@@ -290,10 +290,10 @@ var _ = Describe("Api", func() {
 
 		It("successful receipt of the note description", func() {
 			Expect(err).Should(BeNil())
-			Expect(describeResponse.Note.Id).Should(Equal(id))
-			Expect(describeResponse.Note.UserId).Should(Equal(user_id))
-			Expect(describeResponse.Note.ClassroomId).Should(Equal(classroom_id))
-			Expect(describeResponse.Note.DocumentId).Should(Equal(document_id))
+			Expect(describeResponse.Note.Id).Should(Equal(int64(id)))
+			Expect(describeResponse.Note.UserId).Should(Equal(int32(user_id)))
+			Expect(describeResponse.Note.ClassroomId).Should(Equal(int32(classroom_id)))
+			Expect(describeResponse.Note.DocumentId).Should(Equal(int32(document_id)))
 		})
 	})
 
@@ -373,15 +373,15 @@ var _ = Describe("Api", func() {
 
 		It("successful retrieval of the list of notes", func() {
 			Expect(err).Should(BeNil())
-			Expect(listNotesV1Response.Notes[0].Id).Should(Equal(notes[0].Id))
-			Expect(listNotesV1Response.Notes[0].UserId).Should(Equal(notes[0].UserId))
-			Expect(listNotesV1Response.Notes[0].ClassroomId).Should(Equal(notes[0].ClassroomId))
-			Expect(listNotesV1Response.Notes[0].DocumentId).Should(Equal(notes[0].DocumentId))
+			Expect(listNotesV1Response.Notes[0].Id).Should(Equal(int64(notes[0].Id)))
+			Expect(listNotesV1Response.Notes[0].UserId).Should(Equal(int32(notes[0].UserId)))
+			Expect(listNotesV1Response.Notes[0].ClassroomId).Should(Equal(int32(notes[0].ClassroomId)))
+			Expect(listNotesV1Response.Notes[0].DocumentId).Should(Equal(int32(notes[0].DocumentId)))
 
-			Expect(listNotesV1Response.Notes[1].Id).Should(Equal(notes[1].Id))
-			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(notes[1].UserId))
-			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(notes[1].ClassroomId))
-			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(notes[1].DocumentId))
+			Expect(listNotesV1Response.Notes[1].Id).Should(Equal(int64(notes[1].Id)))
+			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(int32(notes[1].UserId)))
+			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(int32(notes[1].ClassroomId)))
+			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(int32(notes[1].DocumentId)))
 		})
 	})
 

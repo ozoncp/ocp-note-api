@@ -121,10 +121,10 @@ func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Re
 
 	return &desc.DescribeNoteV1Response{
 		Note: &desc.Note{
-			Id:          note.Id,
-			UserId:      note.UserId,
-			ClassroomId: note.ClassroomId,
-			DocumentId:  note.DocumentId,
+			Id:          int64(note.Id),
+			UserId:      int32(note.UserId),
+			ClassroomId: int32(note.ClassroomId),
+			DocumentId:  int32(note.DocumentId),
 		},
 	}, nil
 }
@@ -148,10 +148,10 @@ func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request)
 
 	for _, note := range notes {
 		noteProto := &desc.Note{
-			Id:          note.Id,
-			UserId:      note.UserId,
-			ClassroomId: note.ClassroomId,
-			DocumentId:  note.DocumentId,
+			Id:          int64(note.Id),
+			UserId:      int32(note.UserId),
+			ClassroomId: int32(note.ClassroomId),
+			DocumentId:  int32(note.DocumentId),
 		}
 
 		notesProto = append(notesProto, noteProto)
