@@ -57,6 +57,8 @@ var _ = Describe("Api", func() {
 
 	Context("create note", func() {
 
+		var id uint64 = 1
+
 		BeforeEach(func() {
 			createRequest = &desc.CreateNoteV1Request{
 				UserId:      1,
@@ -64,18 +66,16 @@ var _ = Describe("Api", func() {
 				DocumentId:  1,
 			}
 
-			rows := sqlmock.NewRows([]string{"id"}).AddRow(1)
-
 			mock.ExpectQuery("INSERT INTO notes").
 				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
-				WillReturnRows(rows)
+				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
 
 			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
 		})
 
-		It("good creating", func() {
+		It("successful creation of a note in the database", func() {
 			Expect(err).Should(BeNil())
-			Expect(createResponse.NoteId).Should(Equal(uint64(1)))
+			Expect(createResponse.NoteId).Should(Equal(id))
 		})
 	})
 })
