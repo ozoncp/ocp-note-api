@@ -82,7 +82,7 @@ func equalSliceOfSlices(first [][]uint, second [][]uint) bool {
 func TestSplitNoteSlice(t *testing.T) {
 
 	type Dataset struct {
-		BatchSize int
+		BatchSize uint32
 		Input     []note.Note
 		Output    [][]note.Note
 	}
