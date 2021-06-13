@@ -11,7 +11,7 @@ import (
 
 type Repo interface {
 	AddNote(ctx context.Context, note *note.Note) (uint64, error)
-	AddNotes(ctx context.Context, notes []note.Note) error
+	AddNotes(ctx context.Context, notes []note.Note) (uint64, error)
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
 	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
 	RemoveNote(ctx context.Context, id uint64) error
@@ -46,7 +46,7 @@ func (r *repo) AddNote(ctx context.Context, note *note.Note) (uint64, error) {
 	return note.Id, nil
 }
 
-func (r *repo) AddNotes(ctx context.Context, notes []note.Note) error {
+func (r *repo) AddNotes(ctx context.Context, notes []note.Note) (uint64, error) {
 	query := sq.Insert(tableName).
 		Columns("user_id", "classroom_id", "document_id").
 		RunWith(r.db).
@@ -56,9 +56,19 @@ func (r *repo) AddNotes(ctx context.Context, notes []note.Note) error {
 		query = query.Values(note.UserId, note.ClassroomId, note.DocumentId)
 	}
 
-	_, err := query.ExecContext(ctx)
+	result, err := query.ExecContext(ctx)
 
-	return err
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(rowsAffected), err
 }
 
 func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) {
