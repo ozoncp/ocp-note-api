@@ -55,7 +55,7 @@ var _ = Describe("Flusher", func() {
 			notes = []note.Note{{}}
 			chunkSize = 2
 
-			mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(nil).MinTimes(1)
+			mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(uint64(0), nil).MinTimes(1)
 		})
 
 		It("repo saves all notes", func() {
@@ -69,7 +69,7 @@ var _ = Describe("Flusher", func() {
 			notes = []note.Note{{}, {}}
 			chunkSize = 2
 
-			mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(errDeadlineExceeded)
+			mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(uint64(0), errDeadlineExceeded)
 		})
 
 		It("repo does not save", func() {
@@ -84,8 +84,8 @@ var _ = Describe("Flusher", func() {
 			chunkSize = uint32(len(notes) / 2)
 
 			gomock.InOrder(
-				mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(nil),
-				mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(errDeadlineExceeded),
+				mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(uint64(0), nil),
+				mockStorage.EXPECT().AddNotes(ctx, gomock.Any()).Return(uint64(0), errDeadlineExceeded),
 			)
 		})
 
