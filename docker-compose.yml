@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  note-db:
+    image: postgres
+    ports:
+    - "5432:5432"
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  note-api:
+    build: .
+    ports:
+      - "7002:7002"
+    depends_on:
+      - note-db
