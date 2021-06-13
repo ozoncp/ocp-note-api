@@ -190,6 +190,157 @@ var _ interface {
 	ErrorName() string
 } = CreateNoteV1ResponseValidationError{}
 
+// Validate checks the field values on MultiCreateNotesV1Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateNotesV1Request) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetNotes() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MultiCreateNotesV1RequestValidationError{
+					field:  fmt.Sprintf("Notes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MultiCreateNotesV1RequestValidationError is the validation error returned by
+// MultiCreateNotesV1Request.Validate if the designated constraints aren't met.
+type MultiCreateNotesV1RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateNotesV1RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateNotesV1RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateNotesV1RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateNotesV1RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateNotesV1RequestValidationError) ErrorName() string {
+	return "MultiCreateNotesV1RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateNotesV1RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateNotesV1Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateNotesV1RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateNotesV1RequestValidationError{}
+
+// Validate checks the field values on MultiCreateNotesV1Response with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MultiCreateNotesV1Response) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for NumberOfNotesCreated
+
+	return nil
+}
+
+// MultiCreateNotesV1ResponseValidationError is the validation error returned
+// by MultiCreateNotesV1Response.Validate if the designated constraints aren't met.
+type MultiCreateNotesV1ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiCreateNotesV1ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiCreateNotesV1ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiCreateNotesV1ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiCreateNotesV1ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiCreateNotesV1ResponseValidationError) ErrorName() string {
+	return "MultiCreateNotesV1ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiCreateNotesV1ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiCreateNotesV1Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiCreateNotesV1ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiCreateNotesV1ResponseValidationError{}
+
 // Validate checks the field values on DescribeNoteV1Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -718,3 +869,73 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = NoteValidationError{}
+
+// Validate checks the field values on NewNote with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *NewNote) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for UserId
+
+	// no validation rules for ClassroomId
+
+	// no validation rules for DocumentId
+
+	return nil
+}
+
+// NewNoteValidationError is the validation error returned by NewNote.Validate
+// if the designated constraints aren't met.
+type NewNoteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e NewNoteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e NewNoteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e NewNoteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e NewNoteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e NewNoteValidationError) ErrorName() string { return "NewNoteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e NewNoteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sNewNote.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = NewNoteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = NewNoteValidationError{}
