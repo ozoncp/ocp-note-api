@@ -10,6 +10,12 @@ option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_ap
 service OcpNoteApi {
     rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
         option (google.api.http) = {
+            post: "/v1/note"
+        };
+    }
+
+    rpc MultiCreateNotesV1(MultiCreateNotesV1Request) returns (MultiCreateNotesV1Response) {
+        option (google.api.http) = {
             post: "/v1/notes"
         };
     }
@@ -43,6 +49,14 @@ message CreateNoteV1Response {
     uint64 note_id = 1;
 }
 
+message MultiCreateNotesV1Request {
+    repeated NewNote notes = 1;
+}
+
+message MultiCreateNotesV1Response {
+    uint64 number_of_notes_created = 1;
+}
+
 message DescribeNoteV1Request {
     int64 note_id = 1 [(validate.rules).int64.gt = 0];
 }
@@ -74,3 +88,9 @@ message Note {
     uint32 classroom_id = 3;
     uint32 document_id = 4;
 }
+
+message NewNote {
+    uint32 user_id = 1;
+    uint32 classroom_id = 2;
+    uint32 document_id = 3;
+  }
