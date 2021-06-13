@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"context"
 	"errors"
 	"log"
 
@@ -16,6 +17,7 @@ type Saver interface {
 }
 
 type saver struct {
+	ctx         context.Context
 	capacity    uint
 	flusher     flusher.Flusher
 	alarmer     alarmer.Alarmer
@@ -26,13 +28,14 @@ type saver struct {
 	initPassed  bool
 }
 
-func New(capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
+func New(ctx context.Context, capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
 
 	if capacity <= 0 || flusher == nil || alarmer == nil {
 		return nil
 	}
 
 	return &saver{
+		ctx:         ctx,
 		capacity:    capacity,
 		flusher:     flusher,
 		alarmer:     alarmer,
@@ -99,7 +102,7 @@ func (s *saver) saveData(note note.Note) {
 }
 
 func (s *saver) flushData() {
-	response := s.flusher.Flush(s.notes)
+	response := s.flusher.Flush(s.ctx, s.notes)
 
 	if response != nil {
 		log.Fatalln("failed to flush")

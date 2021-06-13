@@ -27,18 +27,22 @@ var _ = Describe("Saver", func() {
 		capacity    uint
 		chunkSize   uint
 		duration    time.Duration
+
+		ctx context.Context
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mockRepo = mocks.NewMockRepo(ctrl)
-		duration = 100 * time.Microsecond
+		duration = 100 * time.Millisecond
 		capacity = 8
 		chunkSize = 5
 
 		flusherTest = flusher.New(mockRepo, int(chunkSize))
 		alarmerTest = alarmer.New(duration)
-		saverTest = saver.New(capacity, flusherTest, alarmerTest, true)
+
+		ctx = context.Background()
+		saverTest = saver.New(ctx, capacity, flusherTest, alarmerTest, true)
 	})
 
 	AfterEach(func() {
@@ -50,28 +54,28 @@ var _ = Describe("Saver", func() {
 		When("invalid input data", func() {
 			It("capacity = 0", func() {
 				alarmerTest = alarmer.New(duration)
-				saverTest = saver.New(0, flusherTest, alarmerTest, true)
+				saverTest = saver.New(ctx, 0, flusherTest, alarmerTest, true)
 
 				Expect(saverTest).Should(BeNil())
 			})
 
 			It("flusher = nil", func() {
 				alarmerTest = alarmer.New(duration)
-				saverTest = saver.New(capacity, nil, alarmerTest, true)
+				saverTest = saver.New(ctx, capacity, nil, alarmerTest, true)
 
 				Expect(saverTest).Should(BeNil())
 			})
 
 			It("alarmer = nil", func() {
 				alarmerTest = alarmer.New(0)
-				saverTest = saver.New(capacity, flusherTest, alarmerTest, true)
+				saverTest = saver.New(ctx, capacity, flusherTest, alarmerTest, true)
 
 				Expect(saverTest).Should(BeNil())
 			})
 
 			It("all input parameters are invalid", func() {
 				alarmerTest = alarmer.New(0)
-				saverTest = saver.New(0, nil, alarmerTest, true)
+				saverTest = saver.New(ctx, 0, nil, alarmerTest, true)
 
 				Expect(saverTest).Should(BeNil())
 			})
@@ -80,7 +84,7 @@ var _ = Describe("Saver", func() {
 		When("correct input", func() {
 			It("all input parameters are correct", func() {
 				alarmerTest = alarmer.New(duration)
-				saverTest = saver.New(capacity, flusherTest, alarmerTest, true)
+				saverTest = saver.New(ctx, capacity, flusherTest, alarmerTest, true)
 
 				Expect(saverTest).ShouldNot(BeNil())
 			})
@@ -119,7 +123,6 @@ var _ = Describe("Saver", func() {
 		When("correct input", func() {
 
 			It("the number of notes is less than the storage size", func() {
-
 				err := saverTest.Init()
 
 				if err != nil {
@@ -136,13 +139,13 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
 				for i := 0; i < int(notesNum); i++ {
 					saverTest.Save(note.Note{
-						Id:          uint64(i),
+						Id:          uint64(i + 1),
 						UserId:      0,
 						ClassroomId: 0,
 						DocumentId:  0,
@@ -171,7 +174,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
@@ -190,7 +193,7 @@ var _ = Describe("Saver", func() {
 
 			It("the number of notes is larger than the storage size (\"delete first\" mode)", func() {
 
-				saverTest := saver.New(capacity, flusherTest, alarmerTest, false)
+				saverTest := saver.New(ctx, capacity, flusherTest, alarmerTest, false)
 
 				err := saverTest.Init()
 
@@ -208,7 +211,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
@@ -253,7 +256,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(context.TODO(), gomock.Any()).AnyTimes().Do(func(notes []note.Note) {
+				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(nil)
 
