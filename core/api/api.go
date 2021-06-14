@@ -8,7 +8,6 @@ import (
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	"github.com/ozoncp/ocp-note-api/internal/metrics"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
-	"github.com/ozoncp/ocp-note-api/internal/utils"
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,14 +17,12 @@ type api struct {
 	desc.UnimplementedOcpNoteApiServer
 	repo         repo.Repo
 	dataProducer producer.Producer
-	chunkSize    uint32
 }
 
-func NewOcpNoteApi(repo repo.Repo, dataProducer producer.Producer, chunkSize uint32) desc.OcpNoteApiServer {
+func NewOcpNoteApi(repo repo.Repo, dataProducer producer.Producer) desc.OcpNoteApiServer {
 	return &api{
 		repo:         repo,
 		dataProducer: dataProducer,
-		chunkSize:    chunkSize,
 	}
 }
 
@@ -89,24 +86,11 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 		notes = append(notes, *note)
 	}
 
-	chunks := utils.SplitNoteSlice(notes, a.chunkSize)
+	numberOfNotesCreated, err := a.repo.MultiAddNotes(ctx, notes)
 
-	var (
-		successPos                  = 0
-		numberOfNotesCreated uint64 = 0
-	)
-
-	for _, val := range chunks {
-
-		num, err := a.repo.MultiAddNotes(ctx, val)
-
-		if err != nil {
-			log.Error().Err(err).Msg("failed to multi create notes")
-			return nil, err
-		}
-
-		successPos += len(val)
-		numberOfNotesCreated += num
+	if err != nil {
+		log.Error().Err(err).Msg("failed to multi create notes")
+		return nil, err
 	}
 
 	log.Info().Msgf("Multi create notes success")
