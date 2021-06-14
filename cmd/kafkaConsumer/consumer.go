@@ -41,7 +41,7 @@ func messageReceived(message *sarama.ConsumerMessage) {
 		fmt.Printf("Error unmarshalling message: %s\n", err)
 	}
 
-	log.Info().Msgf("Got message: %v", msg.Body)
+	log.Info().Msgf("Message: %v", msg.Body)
 }
 
 var brokers = []string{"127.0.0.1:9092"}
