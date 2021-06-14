@@ -58,8 +58,8 @@ func New(ctx context.Context, topic string) (Producer, error) {
 		return nil, err
 	}
 
-	messages := make(chan *sarama.ProducerMessage, capacity)
-	newProducer := &dataProducer{producer: producer, topic: topic, messageChan: messages}
+	messageChan := make(chan *sarama.ProducerMessage, capacity)
+	newProducer := &dataProducer{producer: producer, topic: topic, messageChan: messageChan}
 	go newProducer.handleMessages(ctx)
 
 	return newProducer, nil
