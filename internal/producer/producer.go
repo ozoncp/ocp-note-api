@@ -41,7 +41,7 @@ func MessageTypeToString(type_ MessageType) string {
 
 type Message struct {
 	type_ MessageType
-	body  map[string]interface{}
+	Body  map[string]interface{}
 }
 
 var brokerAddress = []string{"127.0.0.1:9092"}
@@ -106,9 +106,9 @@ func (dProducer *dataProducer) handleMessages(ctx context.Context) {
 func CreateMessage(type_ MessageType, noteId uint64, timestamp time.Time) Message {
 	return Message{
 		type_: type_,
-		body: map[string]interface{}{
+		Body: map[string]interface{}{
 			"note_id":   noteId,
-			"operation": fmt.Sprintf("Project %s", MessageTypeToString(type_)),
+			"operation": fmt.Sprintf("%s note", MessageTypeToString(type_)),
 			"timestamp": timestamp,
 		},
 	}
