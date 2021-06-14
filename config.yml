@@ -1,5 +1,5 @@
 project: "Note API"
-version: "0.0.1"
+version: "0.0.2"
 author: "Oleg Kozyrev"
 http_port: ":7000"
 grpc_port: ":7002"
