@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net"
@@ -9,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/ozoncp/ocp-note-api/core/api"
 	"github.com/ozoncp/ocp-note-api/core/repo"
+	"github.com/ozoncp/ocp-note-api/internal/producer"
 	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -27,6 +29,8 @@ const (
 	user     = "postgres"
 	password = "inferno04"
 	dbname   = "testdb"
+
+	topic = "noteTopic"
 )
 
 func init() {
@@ -34,6 +38,8 @@ func init() {
 }
 
 func main() {
+	ctx := context.Background()
+
 	flag.Parse()
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	grpcEndpoint := fmt.Sprintf("localhost:%d", grpcPort)
@@ -66,7 +72,13 @@ func main() {
 	}
 
 	repo := repo.New(*db)
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, 2))
+	dataProducer, err := producer.New(ctx, topic)
+
+	if err != nil {
+		log.Error().Err(err).Msg("failed to create a producer")
+	}
+
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer, 2))
 
 	if err = grpcServer.Serve(lis); err != nil {
 		log.Fatal().Err(err).Msg("Cannot accept connections")
