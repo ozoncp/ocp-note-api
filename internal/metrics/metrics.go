@@ -9,47 +9,46 @@ var (
 )
 
 func RegisterMetrics() {
-	// create a new counter vector
 	createCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "create_count",
 			Help: "Number of successful created projects.",
 		},
-		[]string{"quantity"}, // labels
+		[]string{"operation"},
 	)
 	updateCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "update_count",
 			Help: "Number of successful updated projects.",
 		},
-		[]string{"quantity"}, // labels
+		[]string{"operation"},
 	)
 	removeCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "remove_count",
 			Help: "Number of successful removed projects.",
 		},
-		[]string{"quantity"}, // labels
+		[]string{"operation"},
 	)
 
 	// must register counter on init
 	prometheus.MustRegister(createCounter, updateCounter, removeCounter)
 }
 
-func CreateCounterInc(status string) {
+func CreateCounterInc(operation string) {
 	if createCounter != nil {
-		createCounter.WithLabelValues(status).Inc()
+		createCounter.With(prometheus.Labels{"operation": operation}).Inc()
 	}
 }
 
-func UpdateCounterInc(status string) {
+func UpdateCounterInc(operation string) {
 	if updateCounter != nil {
-		updateCounter.WithLabelValues(status).Inc()
+		updateCounter.With(prometheus.Labels{"operation": operation}).Inc()
 	}
 }
 
 func RemoveCounterInc(operation string) {
 	if removeCounter != nil {
-		removeCounter.WithLabelValues(operation).Inc()
+		removeCounter.With(prometheus.Labels{"operation": operation}).Inc()
 	}
 }
