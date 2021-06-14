@@ -25,10 +25,10 @@ import (
 )
 
 const (
-	grpcPort  = ":82"
-	httpPort  = ":8080"
-	promPort  = ":9100"
-	chunkSize = 2
+	grpcPort    = ":82"
+	httpPort    = ":8080"
+	messagePort = ":9100"
+	chunkSize   = 2
 
 	host     = "localhost"
 	port     = 5432
@@ -113,9 +113,9 @@ func run() error {
 		metrics.RegisterMetrics()
 
 		http.Handle("/metrics", promhttp.Handler())
-		log.Info().Msgf("metrics (http) listening on %s", promPort)
+		log.Info().Msgf("metrics (http) listening on %s", messagePort)
 
-		if err = http.ListenAndServe(promPort, nil); err != nil {
+		if err = http.ListenAndServe(messagePort, nil); err != nil {
 			log.Error().Msgf("metrics (http) server fails: %v", err)
 			return err
 		}
