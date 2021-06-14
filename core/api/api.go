@@ -98,7 +98,7 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 
 	for _, val := range chunks {
 
-		num, err := a.repo.AddNotes(ctx, val)
+		num, err := a.repo.MultiAddNotes(ctx, val)
 
 		if err != nil {
 			log.Error().Err(err).Msg("failed to multi create notes")
