@@ -139,7 +139,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
+				mockRepo.EXPECT().MultiAddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(uint64(0), nil)
 
@@ -174,7 +174,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
+				mockRepo.EXPECT().MultiAddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(uint64(0), nil)
 
@@ -211,7 +211,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
+				mockRepo.EXPECT().MultiAddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(uint64(0), nil)
 
@@ -256,7 +256,7 @@ var _ = Describe("Saver", func() {
 				var wg sync.WaitGroup
 				wg.Add(chunkNum)
 
-				mockRepo.EXPECT().AddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
+				mockRepo.EXPECT().MultiAddNotes(ctx, gomock.Any()).AnyTimes().Do(func(ctx context.Context, notes []note.Note) {
 					wg.Done()
 				}).Return(uint64(0), nil)
 
