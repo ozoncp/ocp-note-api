@@ -30,7 +30,7 @@ func (f *flusher) Flush(ctx context.Context, notes []note.Note) []note.Note {
 	var successPos = 0
 
 	for _, val := range chunks {
-		if _, err := f.storage.AddNotes(ctx, val); err != nil {
+		if _, err := f.storage.MultiAddNotes(ctx, val); err != nil {
 			return notes[successPos:]
 		}
 
