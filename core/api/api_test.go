@@ -69,11 +69,11 @@ var _ = Describe("Api", func() {
 
 		sqlxDB = sqlx.NewDb(db, "sqlmock")
 
-		storage = repo.New(*sqlxDB)
-		dataProducerMock = mocks.NewMockProducer(ctrl)
 		chunkSize = 5
+		storage = repo.New(*sqlxDB, chunkSize)
+		dataProducerMock = mocks.NewMockProducer(ctrl)
 
-		grpcApi = api.NewOcpNoteApi(storage, dataProducerMock, chunkSize)
+		grpcApi = api.NewOcpNoteApi(storage, dataProducerMock)
 	})
 
 	AfterEach(func() {
