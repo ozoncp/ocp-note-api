@@ -1,43 +1,40 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"net"
-	"os"
 
-	"github.com/ozoncp/ocp-note-api/core/api"
-	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+
+	api "github.com/ozoncp/ocp-note-api/core/api"
+	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 )
 
-var grpcPort int
+const (
+	grpcPort = ":82"
+)
 
-func init() {
-	flag.IntVar(&grpcPort, "port", 1235, "GRPC server port")
+func run() error {
+	listen, err := net.Listen("tcp", grpcPort)
+
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to listen: %v", err)
+	}
+
+	log.Info().Msgf("Starting server at localhost%v...", grpcPort)
+
+	s := grpc.NewServer()
+	desc.RegisterOcpNoteApiServer(s, api.NewOcpNoteApi())
+
+	if err := s.Serve(listen); err != nil {
+		log.Fatal().Err(err).Msgf("failed to serve: %v", err)
+	}
+
+	return nil
 }
 
 func main() {
-	flag.Parse()
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	grpcEndpoint := fmt.Sprintf("localhost:%d", grpcPort)
-
-	lis, err := net.Listen("tcp", grpcEndpoint)
-
-	if err != nil {
-		log.Fatal().Err(err).Msgf("Cannot start feedback grpc server at %v", grpcEndpoint)
-	}
-
-	log.Info().Msgf("Starting server at %v...", grpcEndpoint)
-
-	grpcServer := grpc.NewServer()
-	reflection.Register(grpcServer)
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi())
-
-	if err = grpcServer.Serve(lis); err != nil {
-		log.Fatal().Err(err).Msg("Cannot accept connections")
+	if err := run(); err != nil {
+		log.Fatal().Err(err).Msgf("failed to create grpc server")
 	}
 }
