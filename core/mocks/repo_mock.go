@@ -50,21 +50,6 @@ func (mr *MockRepoMockRecorder) AddNote(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNote", reflect.TypeOf((*MockRepo)(nil).AddNote), arg0, arg1)
 }
 
-// AddNotes mocks base method.
-func (m *MockRepo) AddNotes(arg0 context.Context, arg1 []note.Note) (uint64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddNotes", arg0, arg1)
-	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// AddNotes indicates an expected call of AddNotes.
-func (mr *MockRepoMockRecorder) AddNotes(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNotes", reflect.TypeOf((*MockRepo)(nil).AddNotes), arg0, arg1)
-}
-
 // DescribeNote mocks base method.
 func (m *MockRepo) DescribeNote(arg0 context.Context, arg1 uint64) (*note.Note, error) {
 	m.ctrl.T.Helper()
@@ -93,6 +78,21 @@ func (m *MockRepo) ListNotes(arg0 context.Context, arg1, arg2 uint64) ([]note.No
 func (mr *MockRepoMockRecorder) ListNotes(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListNotes", reflect.TypeOf((*MockRepo)(nil).ListNotes), arg0, arg1, arg2)
+}
+
+// MultiAddNotes mocks base method.
+func (m *MockRepo) MultiAddNotes(arg0 context.Context, arg1 []note.Note) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MultiAddNotes", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MultiAddNotes indicates an expected call of MultiAddNotes.
+func (mr *MockRepoMockRecorder) MultiAddNotes(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MultiAddNotes", reflect.TypeOf((*MockRepo)(nil).MultiAddNotes), arg0, arg1)
 }
 
 // RemoveNote mocks base method.
