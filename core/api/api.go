@@ -55,7 +55,7 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 
 	log.Info().Msgf("Create note success (id: %d)", noteId)
 
-	message := producer.CreateMessage(producer.Created, noteId, time.Now())
+	message := producer.CreateMessage(producer.Create, noteId, time.Now())
 	err = a.dataProducer.Send(message)
 
 	if err != nil {
@@ -135,7 +135,7 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 
 	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)
 
-	message := producer.CreateMessage(producer.Updated, note.Id, time.Now())
+	message := producer.CreateMessage(producer.Update, note.Id, time.Now())
 	err := a.dataProducer.Send(message)
 
 	if err != nil {
@@ -220,7 +220,7 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
 
-	message := producer.CreateMessage(producer.Removed, uint64(request.NoteId), time.Now())
+	message := producer.CreateMessage(producer.Remove, uint64(request.NoteId), time.Now())
 	err := a.dataProducer.Send(message)
 
 	if err != nil {

@@ -10,106 +10,105 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type MessageType = int
-
 type Producer interface {
-	Send(msg Message) error
+	Send(message Message) error
 }
 
-const (
-	capacity = 256
-)
+var brockerAddress = []string{"127.0.0.1:9092"}
 
-const (
-	Created MessageType = iota
-	Updated
-	Removed
-)
-
-func MessageTypeToString(type_ MessageType) string {
-	switch type_ {
-	case Created:
-		return "created"
-	case Updated:
-		return "updated"
-	case Removed:
-		return "removed"
-	}
-
-	return "unknown event"
+type producer struct {
+	dataProducer sarama.SyncProducer
+	topic        string
+	messageChan  chan *sarama.ProducerMessage
 }
+
+type MessageType int
+
+const (
+	Create MessageType = iota
+	Update
+	Remove
+)
 
 type Message struct {
 	type_ MessageType
 	Body  map[string]interface{}
 }
 
-var brokerAddress = []string{"127.0.0.1:9092"}
-
 func New(ctx context.Context, topic string) (Producer, error) {
 	config := sarama.NewConfig()
-	config.Producer.Partitioner = sarama.NewHashPartitioner
+	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer, err := sarama.NewSyncProducer(brokerAddress, config)
+	producer_, err := sarama.NewSyncProducer(brockerAddress, config)
 
 	if err != nil {
+		log.Error().Err(err).Msg("failed to create a producer")
 		return nil, err
 	}
 
-	messageChan := make(chan *sarama.ProducerMessage, capacity)
-	newProducer := &dataProducer{producer: producer, topic: topic, messageChan: messageChan}
-	go newProducer.handleMessages(ctx)
+	newProducer := &producer{
+		dataProducer: producer_,
+		topic:        topic,
+		messageChan:  make(chan *sarama.ProducerMessage),
+	}
+
+	go newProducer.handleMessage(ctx)
 
 	return newProducer, nil
 }
 
-type dataProducer struct {
-	producer    sarama.SyncProducer
-	topic       string
-	messageChan chan *sarama.ProducerMessage
+func (dProducer *producer) handleMessage(ctx context.Context) {
+	select {
+	case msg := <-dProducer.messageChan:
+		dProducer.dataProducer.SendMessage(msg)
+	case <-ctx.Done():
+		close(dProducer.messageChan)
+		return
+	}
 }
 
-func (dProducer *dataProducer) Send(msg Message) error {
-	msgBytes, err := json.Marshal(msg)
+func (dProducer *producer) Send(message Message) error {
+
+	dataBytes, err := json.Marshal(message)
 
 	if err != nil {
+		log.Error().Err(err).Msg("failed to marshal message to json")
 		return err
 	}
 
 	dProducer.messageChan <- &sarama.ProducerMessage{
 		Topic:     dProducer.topic,
-		Partition: -1,
 		Key:       sarama.StringEncoder(dProducer.topic),
-		Value:     sarama.StringEncoder(msgBytes),
+		Value:     sarama.StringEncoder(dataBytes),
+		Partition: -1,
+		Timestamp: time.Time{},
 	}
 
 	return nil
 }
 
-func (dProducer *dataProducer) handleMessages(ctx context.Context) {
-	for {
-		select {
-		case msg := <-dProducer.messageChan:
-			_, _, err := dProducer.producer.SendMessage(msg)
-			if err != nil {
-				log.Error().Msgf("failed to send message to kafka: %v", err)
-			}
-		case <-ctx.Done():
-			close(dProducer.messageChan)
-			return
-		}
-	}
-}
-
-func CreateMessage(type_ MessageType, noteId uint64, timestamp time.Time) Message {
+func CreateMessage(type_ MessageType, id uint64, timestamp time.Time) Message {
 	return Message{
 		type_: type_,
 		Body: map[string]interface{}{
-			"note_id":   noteId,
-			"operation": fmt.Sprintf("%s note", MessageTypeToString(type_)),
-			"timestamp": timestamp,
+			"Id":        id,
+			"Operation": fmt.Sprintf("%s note", convertMessageTypeToString(type_)),
+			"Timestamp": timestamp,
 		},
 	}
+}
+
+func convertMessageTypeToString(type_ MessageType) string {
+	switch type_ {
+	case Create:
+		return "Created"
+	case Update:
+		return "Updated"
+	case Remove:
+		return "Removed"
+	}
+
+	return "unknown message type"
 }
