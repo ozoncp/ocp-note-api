@@ -7,11 +7,13 @@ import (
 	"fmt"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/golang/mock/gomock"
 	"github.com/jmoiron/sqlx"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/ozoncp/ocp-note-api/core/api"
+	"github.com/ozoncp/ocp-note-api/core/mocks"
 	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
@@ -20,7 +22,8 @@ import (
 var _ = Describe("Api", func() {
 
 	var (
-		ctx context.Context
+		ctx  context.Context
+		ctrl *gomock.Controller
 
 		db     *sql.DB
 		sqlxDB *sqlx.DB
@@ -31,8 +34,9 @@ var _ = Describe("Api", func() {
 			{Id: 2, UserId: 2, ClassroomId: 2, DocumentId: 2},
 		}
 
-		storage repo.Repo
-		grpcApi desc.OcpNoteApiServer
+		storage          repo.Repo
+		dataProducerMock *mocks.MockProducer
+		grpcApi          desc.OcpNoteApiServer
 
 		createRequest  *desc.CreateNoteV1Request
 		createResponse *desc.CreateNoteV1Response
@@ -58,6 +62,7 @@ var _ = Describe("Api", func() {
 
 	BeforeEach(func() {
 		ctx = context.Background()
+		ctrl = gomock.NewController(GinkgoT())
 
 		db, mock, err = sqlmock.New()
 		Expect(err).Should(BeNil())
@@ -65,8 +70,10 @@ var _ = Describe("Api", func() {
 		sqlxDB = sqlx.NewDb(db, "sqlmock")
 
 		storage = repo.New(*sqlxDB)
+		dataProducerMock = mocks.NewMockProducer(ctrl)
 		chunkSize = 5
-		grpcApi = api.NewOcpNoteApi(storage, chunkSize)
+
+		grpcApi = api.NewOcpNoteApi(storage, dataProducerMock, chunkSize)
 	})
 
 	AfterEach(func() {
@@ -132,6 +139,8 @@ var _ = Describe("Api", func() {
 			mock.ExpectQuery("INSERT INTO notes").
 				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
 				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+
+			dataProducerMock.EXPECT().Send(gomock.Any())
 
 			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
 		})
@@ -288,6 +297,8 @@ var _ = Describe("Api", func() {
 			mock.ExpectExec("UPDATE notes").
 				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
 				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any())
 
 			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
 		})
@@ -509,6 +520,8 @@ var _ = Describe("Api", func() {
 			mock.ExpectExec("DELETE FROM notes").
 				WithArgs(removeNoteV1Request.NoteId).
 				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any())
 
 			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
 		})
