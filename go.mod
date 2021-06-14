@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/squirrel v1.5.0
+	github.com/Shopify/sarama v1.29.0
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
@@ -26,7 +27,6 @@ require (
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494
 	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.26.0
-	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
