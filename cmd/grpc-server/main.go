@@ -57,25 +57,29 @@ func run() error {
 		host, port, user, password, dbname)
 
 	db, err := sqlx.Open("pgx", psqlInfo)
-	defer db.Close()
 
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create connect to database")
+		return err
 	}
+
+	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to ping to database")
+		return err
 	}
 
-	repo := repo.New(*db)
+	repo := repo.New(*db, chunkSize)
 	dataProducer, err := producer.New(ctx, topic)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
+		return err
 	}
 
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer, chunkSize))
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer))
 
 	var group errgroup.Group
 

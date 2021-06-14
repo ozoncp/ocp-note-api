@@ -62,7 +62,11 @@ func New(ctx context.Context, topic string) (Producer, error) {
 func (dProducer *producer) handleMessage(ctx context.Context) {
 	select {
 	case msg := <-dProducer.messageChan:
-		dProducer.dataProducer.SendMessage(msg)
+		_, _, err := dProducer.dataProducer.SendMessage(msg)
+
+		if err != nil {
+			log.Error().Msgf("failed to send message to kafka: %v", err)
+		}
 	case <-ctx.Done():
 		close(dProducer.messageChan)
 		return
