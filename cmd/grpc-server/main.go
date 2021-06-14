@@ -17,6 +17,7 @@ import (
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	"github.com/ozoncp/ocp-note-api/internal/metrics"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
+	"github.com/ozoncp/ocp-note-api/internal/tracer"
 	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 
 	_ "github.com/jackc/pgx/stdlib"
@@ -122,6 +123,8 @@ func run() error {
 }
 
 func main() {
+	tracer.InitTracing("ocp_note_api")
+
 	if err := run(); err != nil {
 		log.Fatal().Err(err).Msgf("failed to create grpc server")
 	}
