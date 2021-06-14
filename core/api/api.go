@@ -6,6 +6,7 @@ import (
 
 	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
+	"github.com/ozoncp/ocp-note-api/internal/metrics"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
 	"github.com/ozoncp/ocp-note-api/internal/utils"
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
@@ -61,6 +62,8 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 	if err != nil {
 		log.Warn().Msgf("failed to send message about creating a note to kafka: %v", err)
 	}
+
+	metrics.CreateCounterInc("Create")
 
 	return &desc.CreateNoteV1Response{NoteId: noteId}, nil
 }
@@ -141,6 +144,8 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 	if err != nil {
 		log.Warn().Msgf("failed to send message about updating a note to kafka: %v", err)
 	}
+
+	metrics.CreateCounterInc("Update")
 
 	return &desc.UpdateNoteV1Response{Found: true}, nil
 }
@@ -226,6 +231,8 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 	if err != nil {
 		log.Warn().Msgf("failed to send message about deleting a note to kafka: %v", err)
 	}
+
+	metrics.CreateCounterInc("Remove")
 
 	return &desc.RemoveNoteV1Response{Found: true}, nil
 }
