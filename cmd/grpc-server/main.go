@@ -4,13 +4,18 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	api "github.com/ozoncp/ocp-note-api/core/api"
 	"github.com/ozoncp/ocp-note-api/core/repo"
+	"github.com/ozoncp/ocp-note-api/internal/metrics"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
 	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 
@@ -19,7 +24,10 @@ import (
 )
 
 const (
-	grpcPort = ":82"
+	grpcPort  = ":82"
+	httpPort  = ":8080"
+	promPort  = ":9100"
+	chunkSize = 2
 
 	host     = "localhost"
 	port     = 5432
@@ -66,13 +74,51 @@ func run() error {
 		log.Error().Err(err).Msg("failed to create a producer")
 	}
 
-	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer, 2))
+	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer, chunkSize))
 
-	if err = grpcServer.Serve(listen); err != nil {
-		log.Fatal().Err(err).Msgf("failed to serve: %v", err)
-	}
+	var group errgroup.Group
 
-	return nil
+	group.Go(func() error {
+		log.Info().Msg("serving grpc requests...")
+		return grpcServer.Serve(listen)
+	})
+
+	gwmux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+	group.Go(func() error {
+		if err := note.RegisterOcpNoteApiHandlerFromEndpoint(ctx, gwmux, grpcPort, opts); err != nil {
+			log.Error().Msgf("register gateway fails: %v", err)
+			return err
+		}
+
+		mux := http.NewServeMux()
+		mux.Handle("/", gwmux)
+
+		log.Info().Msgf("http server listening on %s", httpPort)
+		if err = http.ListenAndServe(httpPort, mux); err != nil {
+			log.Error().Msgf("http gateway server fails: %v", err)
+			return err
+		}
+
+		return nil
+	})
+
+	group.Go(func() error {
+		metrics.RegisterMetrics()
+
+		http.Handle("/metrics", promhttp.Handler())
+		log.Info().Msgf("metrics (http) listening on %s", promPort)
+
+		if err = http.ListenAndServe(promPort, nil); err != nil {
+			log.Error().Msgf("metrics (http) server fails: %v", err)
+			return err
+		}
+
+		return nil
+	})
+
+	return group.Wait()
 }
 
 func main() {
