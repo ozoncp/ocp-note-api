@@ -2,28 +2,25 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net"
-	"os"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/ozoncp/ocp-note-api/core/api"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+
+	api "github.com/ozoncp/ocp-note-api/core/api"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
 	note "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 
 	_ "github.com/jackc/pgx/stdlib"
 	_ "github.com/lib/pq"
 )
 
-var grpcPort int
-
 const (
+	grpcPort = ":82"
+
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
@@ -33,27 +30,18 @@ const (
 	topic = "noteTopic"
 )
 
-func init() {
-	flag.IntVar(&grpcPort, "port", 7002, "GRPC server port")
-}
-
-func main() {
+func run() error {
 	ctx := context.Background()
 
-	flag.Parse()
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	grpcEndpoint := fmt.Sprintf("localhost:%d", grpcPort)
-
-	lis, err := net.Listen("tcp", grpcEndpoint)
+	listen, err := net.Listen("tcp", grpcPort)
 
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Cannot start feedback grpc server at %v", grpcEndpoint)
+		log.Fatal().Err(err).Msgf("failed to listen: %v", err)
 	}
 
-	log.Info().Msgf("Starting server at %v...", grpcEndpoint)
+	log.Info().Msgf("Starting server at localhost%v...", grpcPort)
 
 	grpcServer := grpc.NewServer()
-	reflection.Register(grpcServer)
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -80,7 +68,15 @@ func main() {
 
 	note.RegisterOcpNoteApiServer(grpcServer, api.NewOcpNoteApi(repo, dataProducer, 2))
 
-	if err = grpcServer.Serve(lis); err != nil {
-		log.Fatal().Err(err).Msg("Cannot accept connections")
+	if err = grpcServer.Serve(listen); err != nil {
+		log.Fatal().Err(err).Msgf("failed to serve: %v", err)
+	}
+
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal().Err(err).Msgf("failed to create grpc server")
 	}
 }
