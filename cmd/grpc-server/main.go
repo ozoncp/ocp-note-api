@@ -25,13 +25,13 @@ import (
 )
 
 const (
-	grpcPort    = ":82"
+	grpcPort    = ":7002"
 	httpPort    = ":8080"
 	messagePort = ":9100"
 	chunkSize   = 2
 
-	host     = "localhost"
-	port     = 5433
+	host     = "database"
+	port     = 5432
 	user     = "postgres"
 	password = "postgres"
 	dbname   = "postgres"
