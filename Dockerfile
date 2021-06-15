@@ -36,4 +36,6 @@ COPY --from=builder /home/developer/go/src/github.com/ozoncp/ocp-note-api/bin/oc
 COPY --from=builder /home/developer/go/src/github.com/ozoncp/ocp-note-api/config.yml .
 RUN chown root:root ocp-note-api
 EXPOSE 82
+EXPOSE 8080
+EXPOSE 9100
 CMD ["./ocp-note-api"]

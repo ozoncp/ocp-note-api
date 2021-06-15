@@ -31,10 +31,10 @@ const (
 	chunkSize   = 2
 
 	host     = "localhost"
-	port     = 5432
+	port     = 5433
 	user     = "postgres"
-	password = "inferno04"
-	dbname   = "testdb"
+	password = "postgres"
+	dbname   = "postgres"
 
 	topic = "noteTopic"
 )
@@ -130,6 +130,6 @@ func main() {
 	tracer.InitTracing("ocp_note_api")
 
 	if err := run(); err != nil {
-		log.Fatal().Err(err).Msgf("failed to create grpc server")
+		log.Fatal().Err(err).Msgf("failed to run service")
 	}
 }
