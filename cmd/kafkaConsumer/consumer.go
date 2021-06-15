@@ -44,7 +44,7 @@ func messageReceived(message *sarama.ConsumerMessage) {
 	log.Info().Msgf("Message: %v", msg.Body)
 }
 
-var brokers = []string{"127.0.0.1:9092"}
+var brokers = []string{"kafka:9092"}
 
 func main() {
 	consumer, err := sarama.NewConsumer(brokers, nil)

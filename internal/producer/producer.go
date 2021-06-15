@@ -14,7 +14,7 @@ type Producer interface {
 	Send(message Message) error
 }
 
-var brockerAddress = []string{"127.0.0.1:9092"}
+var brockerAddress = []string{"kafka:9092"}
 
 type producer struct {
 	dataProducer sarama.SyncProducer
