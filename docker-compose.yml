@@ -29,7 +29,7 @@ services:
   database:
     image: postgres
     ports:
-      - "5433:5433"
+      - "5433:5432"
     restart: always
     # volumes:
     #   - postgres_database:/var/lib/postgresql/data:Z
