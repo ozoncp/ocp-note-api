@@ -129,7 +129,7 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 		log.Warn().Msgf("failed to send message about updating a note to kafka: %v", err)
 	}
 
-	metrics.CreateCounterInc("Update")
+	metrics.UpdateCounterInc("Update")
 
 	return &desc.UpdateNoteV1Response{Found: true}, nil
 }
@@ -216,7 +216,7 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 		log.Warn().Msgf("failed to send message about deleting a note to kafka: %v", err)
 	}
 
-	metrics.CreateCounterInc("Remove")
+	metrics.RemoveCounterInc("Remove")
 
 	return &desc.RemoveNoteV1Response{Found: true}, nil
 }
