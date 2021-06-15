@@ -13,12 +13,18 @@
   "paths": {
     "/v1/notes": {
       "get": {
-        "operationId": "ListNotesV1",
+        "operationId": "OcpNoteApi_ListNotesV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/apiListNotesV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -28,14 +34,14 @@
             "in": "query",
             "required": false,
             "type": "string",
-            "format": "uint64"
+            "format": "int64"
           },
           {
             "name": "offset",
             "in": "query",
             "required": false,
             "type": "string",
-            "format": "uint64"
+            "format": "int64"
           }
         ],
         "tags": [
@@ -43,12 +49,18 @@
         ]
       },
       "post": {
-        "operationId": "CreateNoteV1",
+        "operationId": "OcpNoteApi_CreateNoteV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/apiCreateNoteV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -59,12 +71,18 @@
     },
     "/v1/notes/{note_id}": {
       "get": {
-        "operationId": "DescribeNoteV1",
+        "operationId": "OcpNoteApi_DescribeNoteV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/apiDescribeNoteV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -74,7 +92,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "uint64"
+            "format": "int64"
           }
         ],
         "tags": [
@@ -82,12 +100,18 @@
         ]
       },
       "delete": {
-        "operationId": "RemoveNoteV1",
+        "operationId": "OcpNoteApi_RemoveNoteV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/apiRemoveNoteV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -97,7 +121,7 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "uint64"
+            "format": "int64"
           }
         ],
         "tags": [
@@ -160,8 +184,40 @@
       "type": "object",
       "properties": {
         "found": {
-          "type": "boolean",
-          "format": "boolean"
+          "type": "boolean"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
         }
       }
     }
