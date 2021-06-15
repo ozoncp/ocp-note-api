@@ -72,7 +72,7 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	var notes []note.Note
@@ -92,7 +92,7 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to multi create notes")
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Multi create notes success")
@@ -107,7 +107,7 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note := &note.Note{
@@ -119,7 +119,7 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 
 	if err := a.repo.UpdateNote(ctx, note); err != nil {
 		log.Error().Err(err).Msg("failed to update note")
-		return &desc.UpdateNoteV1Response{Found: false}, nil
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)

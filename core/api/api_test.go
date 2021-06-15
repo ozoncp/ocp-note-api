@@ -278,7 +278,8 @@ var _ = Describe("Api", func() {
 		})
 
 		It("failed to execute sql request", func() {
-			Expect(updateNoteV1Response.Found).Should(Equal(false))
+			Expect(err).ShouldNot(BeNil())
+			Expect(updateNoteV1Response).Should(BeNil())
 		})
 	})
 
