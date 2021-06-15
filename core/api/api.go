@@ -11,6 +11,8 @@ import (
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type api struct {
@@ -35,7 +37,7 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note := &note.Note{
@@ -48,7 +50,7 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create note")
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Create note success (id: %d)", noteId)
@@ -139,14 +141,14 @@ func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Re
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note, err := a.repo.DescribeNote(ctx, uint64(request.NoteId))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get description note")
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	log.Info().Msg("Desribe note success")
@@ -166,14 +168,14 @@ func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request)
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	notes, err := a.repo.ListNotes(ctx, uint64(request.Limit), uint64(request.Offset))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get notes")
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	var notesProto []*desc.Note
@@ -199,12 +201,12 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
-		return &desc.RemoveNoteV1Response{Found: false}, nil
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
