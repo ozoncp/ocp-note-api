@@ -16,8 +16,6 @@ services:
     image: confluentinc/cp-kafka
     depends_on:
       - zookeeper
-    ports:
-      - "127.0.0.1:9094:9094"
     environment:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
       KAFKA_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://kafka:9094
@@ -28,15 +26,11 @@ services:
 
   database:
     image: postgres
-    ports:
-      - "5433:5432"
     restart: always
     # volumes:
     #   - postgres_database:/var/lib/postgresql/data:Z
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_PASSWORD: postgres
 
 
   prometheus:
@@ -53,6 +47,9 @@ services:
       - "7002:7002"
     restart: unless-stopped
     depends_on:
+      - database
+      - kafka
+    links: 
       - database
       - kafka
 
