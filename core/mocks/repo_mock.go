@@ -96,11 +96,12 @@ func (mr *MockRepoMockRecorder) MultiAddNotes(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // RemoveNote mocks base method.
-func (m *MockRepo) RemoveNote(arg0 context.Context, arg1 uint64) error {
+func (m *MockRepo) RemoveNote(arg0 context.Context, arg1 uint64) (error, bool) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveNote", arg0, arg1)
 	ret0, _ := ret[0].(error)
-	return ret0
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
 }
 
 // RemoveNote indicates an expected call of RemoveNote.
