@@ -117,15 +117,22 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 		DocumentId:  uint32(request.Note.DocumentId),
 	}
 
-	if err := a.repo.UpdateNote(ctx, note); err != nil {
+	err, found := a.repo.UpdateNote(ctx, note)
+
+	if err != nil {
 		log.Error().Err(err).Msg("failed to update note")
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if !found {
+		log.Error().Err(err).Msg("not found note")
+		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)
 
 	message := producer.CreateMessage(producer.Update, note.Id, time.Now())
-	err := a.dataProducer.Send(message)
+	err = a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about updating a note to kafka: %v", err)
