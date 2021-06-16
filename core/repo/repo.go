@@ -19,7 +19,7 @@ type Repo interface {
 	UpdateNote(ctx context.Context, notes *note.Note) error
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
 	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
-	RemoveNote(ctx context.Context, id uint64) error
+	RemoveNote(ctx context.Context, id uint64) (error, bool)
 }
 
 const (
@@ -181,7 +181,7 @@ func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note
 	return notes, nil
 }
 
-func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
+func (r *repo) RemoveNote(ctx context.Context, id uint64) (error, bool) {
 	query := sq.Delete(tableName).
 		Where(sq.Eq{"id": id}).
 		RunWith(r.db).
@@ -190,18 +190,18 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 	result, err := query.ExecContext(ctx)
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	if rowsAffected <= 0 {
-		return errors.New("not found note")
+		return nil, false
 	}
 
-	return nil
+	return nil, true
 }

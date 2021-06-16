@@ -204,15 +204,22 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
+	err, found := a.repo.RemoveNote(ctx, uint64(request.NoteId))
+
+	if err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
-		return nil, status.Error(codes.NotFound, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if !found {
+		log.Error().Err(err).Msg("not found note")
+		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
 
 	message := producer.CreateMessage(producer.Remove, uint64(request.NoteId), time.Now())
-	err := a.dataProducer.Send(message)
+	err = a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about deleting a note to kafka: %v", err)
