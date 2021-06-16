@@ -1,6 +1,7 @@
 # Note API for Ozon Code Platform
-<!-- [![Build & Test](https://github.com/ozoncp/ocp-note-api/actions/workflows/golangci-lint.yml/badge.svg?branch=main)](https://github.com/ozoncp/ocp-note-api/actions/workflows/go.yml) -->
-[![codecov](https://codecov.io/gh/ozoncp/ocp-note-api/branch/main/graph/badge.svg)](https://codecov.io/gh/ozoncp/ocp-note-api)
+![Build & Test](https://github.com/ozoncp/ocp-note-api/actions/workflows/golangci-lint.yml/badge.svg?branch=main)
+<!-- ![Build & Test](https://github.com/ozoncp/ocp-note-api/actions/workflows/go.yml/badge.svg?branch=main) -->
+<!-- [![codecov](https://codecov.io/gh/ozoncp/ocp-note-api/branch/main/graph/badge.svg)](https://codecov.io/gh/ozoncp/ocp-note-api) -->
 
 # Сборка и запуск сервиса и его окружения
 
