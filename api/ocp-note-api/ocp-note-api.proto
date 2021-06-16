@@ -8,24 +8,42 @@ package ocp.note.api;
 option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_api";
 
 service OcpNoteApi {
+    // Create note
     rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
+        option (google.api.http) = {
+            post: "/v1/note"
+        };
+    }
+
+    // Multi create notes
+    rpc MultiCreateNotesV1(MultiCreateNotesV1Request) returns (MultiCreateNotesV1Response) {
         option (google.api.http) = {
             post: "/v1/notes"
         };
     }
 
+    // Update note
+    rpc UpdateNoteV1(UpdateNoteV1Request) returns (UpdateNoteV1Response) {
+        option (google.api.http) = {
+            post: "/v1/note"
+        };
+    }
+
+    // Describe note
     rpc DescribeNoteV1(DescribeNoteV1Request) returns (DescribeNoteV1Response) {
         option (google.api.http) = {
             get: "/v1/notes/{note_id}"
         };
     }
 
+    // List notes
     rpc ListNotesV1(ListNotesV1Request) returns (ListNotesV1Response) {
         option (google.api.http) = {
             get: "/v1/notes"
         };
     }
 
+    // Remove note
     rpc RemoveNoteV1(RemoveNoteV1Request) returns (RemoveNoteV1Response) {
         option (google.api.http) = {
             delete: "/v1/notes/{note_id}"
@@ -41,6 +59,22 @@ message CreateNoteV1Request {
 
 message CreateNoteV1Response {
     uint64 note_id = 1;
+}
+
+message MultiCreateNotesV1Request {
+    repeated NewNote notes = 1;
+}
+
+message MultiCreateNotesV1Response {
+    uint64 number_of_notes_created = 1;
+}
+
+message UpdateNoteV1Request {
+    Note note = 1;
+}
+
+message UpdateNoteV1Response {
+    bool found = 1;
 }
 
 message DescribeNoteV1Request {
@@ -69,8 +103,14 @@ message RemoveNoteV1Response {
 }
 
 message Note {
-    uint64 id = 1;
-    uint32 user_id = 2;
-    uint32 classroom_id = 3;
-    uint32 document_id = 4;
+    int64 id = 1 [(validate.rules).int64.gt = 0];
+    int32 user_id = 2 [(validate.rules).int32.gt = 0];
+    int32 classroom_id = 3 [(validate.rules).int32.gt = 0];
+    int32 document_id = 4 [(validate.rules).int32.gt = 0];
 }
+
+message NewNote {
+    int32 user_id = 1 [(validate.rules).int32.gt = 0];
+    int32 classroom_id = 2 [(validate.rules).int32.gt = 0];
+    int32 document_id = 3 [(validate.rules).int32.gt = 0];
+  }

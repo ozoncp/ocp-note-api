@@ -18,9 +18,17 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OcpNoteApiClient interface {
+	// Create note
 	CreateNoteV1(ctx context.Context, in *CreateNoteV1Request, opts ...grpc.CallOption) (*CreateNoteV1Response, error)
+	// Multi create notes
+	MultiCreateNotesV1(ctx context.Context, in *MultiCreateNotesV1Request, opts ...grpc.CallOption) (*MultiCreateNotesV1Response, error)
+	// Update note
+	UpdateNoteV1(ctx context.Context, in *UpdateNoteV1Request, opts ...grpc.CallOption) (*UpdateNoteV1Response, error)
+	// Describe note
 	DescribeNoteV1(ctx context.Context, in *DescribeNoteV1Request, opts ...grpc.CallOption) (*DescribeNoteV1Response, error)
+	// List notes
 	ListNotesV1(ctx context.Context, in *ListNotesV1Request, opts ...grpc.CallOption) (*ListNotesV1Response, error)
+	// Remove note
 	RemoveNoteV1(ctx context.Context, in *RemoveNoteV1Request, opts ...grpc.CallOption) (*RemoveNoteV1Response, error)
 }
 
@@ -35,6 +43,24 @@ func NewOcpNoteApiClient(cc grpc.ClientConnInterface) OcpNoteApiClient {
 func (c *ocpNoteApiClient) CreateNoteV1(ctx context.Context, in *CreateNoteV1Request, opts ...grpc.CallOption) (*CreateNoteV1Response, error) {
 	out := new(CreateNoteV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.note.api.OcpNoteApi/CreateNoteV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpNoteApiClient) MultiCreateNotesV1(ctx context.Context, in *MultiCreateNotesV1Request, opts ...grpc.CallOption) (*MultiCreateNotesV1Response, error) {
+	out := new(MultiCreateNotesV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.note.api.OcpNoteApi/MultiCreateNotesV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpNoteApiClient) UpdateNoteV1(ctx context.Context, in *UpdateNoteV1Request, opts ...grpc.CallOption) (*UpdateNoteV1Response, error) {
+	out := new(UpdateNoteV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.note.api.OcpNoteApi/UpdateNoteV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +98,17 @@ func (c *ocpNoteApiClient) RemoveNoteV1(ctx context.Context, in *RemoveNoteV1Req
 // All implementations must embed UnimplementedOcpNoteApiServer
 // for forward compatibility
 type OcpNoteApiServer interface {
+	// Create note
 	CreateNoteV1(context.Context, *CreateNoteV1Request) (*CreateNoteV1Response, error)
+	// Multi create notes
+	MultiCreateNotesV1(context.Context, *MultiCreateNotesV1Request) (*MultiCreateNotesV1Response, error)
+	// Update note
+	UpdateNoteV1(context.Context, *UpdateNoteV1Request) (*UpdateNoteV1Response, error)
+	// Describe note
 	DescribeNoteV1(context.Context, *DescribeNoteV1Request) (*DescribeNoteV1Response, error)
+	// List notes
 	ListNotesV1(context.Context, *ListNotesV1Request) (*ListNotesV1Response, error)
+	// Remove note
 	RemoveNoteV1(context.Context, *RemoveNoteV1Request) (*RemoveNoteV1Response, error)
 	mustEmbedUnimplementedOcpNoteApiServer()
 }
@@ -85,6 +119,12 @@ type UnimplementedOcpNoteApiServer struct {
 
 func (UnimplementedOcpNoteApiServer) CreateNoteV1(context.Context, *CreateNoteV1Request) (*CreateNoteV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNoteV1 not implemented")
+}
+func (UnimplementedOcpNoteApiServer) MultiCreateNotesV1(context.Context, *MultiCreateNotesV1Request) (*MultiCreateNotesV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateNotesV1 not implemented")
+}
+func (UnimplementedOcpNoteApiServer) UpdateNoteV1(context.Context, *UpdateNoteV1Request) (*UpdateNoteV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateNoteV1 not implemented")
 }
 func (UnimplementedOcpNoteApiServer) DescribeNoteV1(context.Context, *DescribeNoteV1Request) (*DescribeNoteV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeNoteV1 not implemented")
@@ -122,6 +162,42 @@ func _OcpNoteApi_CreateNoteV1_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OcpNoteApiServer).CreateNoteV1(ctx, req.(*CreateNoteV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpNoteApi_MultiCreateNotesV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateNotesV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpNoteApiServer).MultiCreateNotesV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.note.api.OcpNoteApi/MultiCreateNotesV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpNoteApiServer).MultiCreateNotesV1(ctx, req.(*MultiCreateNotesV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpNoteApi_UpdateNoteV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNoteV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpNoteApiServer).UpdateNoteV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.note.api.OcpNoteApi/UpdateNoteV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpNoteApiServer).UpdateNoteV1(ctx, req.(*UpdateNoteV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -190,6 +266,14 @@ var OcpNoteApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateNoteV1",
 			Handler:    _OcpNoteApi_CreateNoteV1_Handler,
+		},
+		{
+			MethodName: "MultiCreateNotesV1",
+			Handler:    _OcpNoteApi_MultiCreateNotesV1_Handler,
+		},
+		{
+			MethodName: "UpdateNoteV1",
+			Handler:    _OcpNoteApi_UpdateNoteV1_Handler,
 		},
 		{
 			MethodName: "DescribeNoteV1",

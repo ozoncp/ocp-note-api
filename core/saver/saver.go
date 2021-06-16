@@ -18,7 +18,7 @@ type Saver interface {
 
 type saver struct {
 	ctx         context.Context
-	capacity    uint
+	capacity    uint32
 	flusher     flusher.Flusher
 	alarmer     alarmer.Alarmer
 	notesChan   chan note.Note
@@ -28,7 +28,7 @@ type saver struct {
 	initPassed  bool
 }
 
-func New(ctx context.Context, capacity uint, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
+func New(ctx context.Context, capacity uint32, flusher flusher.Flusher, alarmer alarmer.Alarmer, lossAllData bool) Saver {
 
 	if capacity <= 0 || flusher == nil || alarmer == nil {
 		return nil

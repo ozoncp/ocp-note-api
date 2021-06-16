@@ -7,11 +7,13 @@ import (
 	"fmt"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/golang/mock/gomock"
 	"github.com/jmoiron/sqlx"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/ozoncp/ocp-note-api/core/api"
+	"github.com/ozoncp/ocp-note-api/core/mocks"
 	"github.com/ozoncp/ocp-note-api/core/note"
 	"github.com/ozoncp/ocp-note-api/core/repo"
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
@@ -20,7 +22,8 @@ import (
 var _ = Describe("Api", func() {
 
 	var (
-		ctx context.Context
+		ctx  context.Context
+		ctrl *gomock.Controller
 
 		db     *sql.DB
 		sqlxDB *sqlx.DB
@@ -31,11 +34,18 @@ var _ = Describe("Api", func() {
 			{Id: 2, UserId: 2, ClassroomId: 2, DocumentId: 2},
 		}
 
-		storage repo.Repo
-		grpcApi desc.OcpNoteApiServer
+		storage          repo.Repo
+		dataProducerMock *mocks.MockProducer
+		grpcApi          desc.OcpNoteApiServer
 
 		createRequest  *desc.CreateNoteV1Request
 		createResponse *desc.CreateNoteV1Response
+
+		multiCreateNotesV1Request  *desc.MultiCreateNotesV1Request
+		multiCreateNotesV1Response *desc.MultiCreateNotesV1Response
+
+		updateNoteV1Request  *desc.UpdateNoteV1Request
+		updateNoteV1Response *desc.UpdateNoteV1Response
 
 		describeRequest  *desc.DescribeNoteV1Request
 		describeResponse *desc.DescribeNoteV1Response
@@ -46,19 +56,24 @@ var _ = Describe("Api", func() {
 		removeNoteV1Request  *desc.RemoveNoteV1Request
 		removeNoteV1Response *desc.RemoveNoteV1Response
 
-		err error
+		err       error
+		chunkSize uint32
 	)
 
 	BeforeEach(func() {
 		ctx = context.Background()
+		ctrl = gomock.NewController(GinkgoT())
 
 		db, mock, err = sqlmock.New()
 		Expect(err).Should(BeNil())
 
 		sqlxDB = sqlx.NewDb(db, "sqlmock")
 
-		storage = repo.New(*sqlxDB)
-		grpcApi = api.NewOcpNoteApi(storage)
+		chunkSize = 5
+		storage = repo.New(*sqlxDB, chunkSize)
+		dataProducerMock = mocks.NewMockProducer(ctrl)
+
+		grpcApi = api.NewOcpNoteApi(storage, dataProducerMock)
 	})
 
 	AfterEach(func() {
@@ -125,6 +140,8 @@ var _ = Describe("Api", func() {
 				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
 				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
 
+			dataProducerMock.EXPECT().Send(gomock.Any())
+
 			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
 		})
 
@@ -134,13 +151,172 @@ var _ = Describe("Api", func() {
 		})
 	})
 
+	Context("multi create notes with invalid arguments", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{{
+					UserId:      -1,
+					ClassroomId: 1,
+					DocumentId:  1,
+				}},
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("failed notes multi creation due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(multiCreateNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful notes multi creation", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{
+					{
+						UserId:      int32(notes[0].UserId),
+						ClassroomId: int32(notes[0].ClassroomId),
+						DocumentId:  int32(notes[0].DocumentId),
+					},
+					{
+						UserId:      int32(notes[1].UserId),
+						ClassroomId: int32(notes[1].ClassroomId),
+						DocumentId:  int32(notes[1].DocumentId),
+					}},
+			}
+
+			mock.ExpectExec("INSERT INTO notes").
+				WithArgs(notes[0].UserId, notes[0].ClassroomId, notes[0].DocumentId, notes[1].UserId, notes[1].ClassroomId, notes[1].DocumentId).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(multiCreateNotesV1Response).Should(BeNil())
+		})
+	})
+
+	Context("multi create notes", func() {
+
+		BeforeEach(func() {
+			multiCreateNotesV1Request = &desc.MultiCreateNotesV1Request{
+				Notes: []*desc.NewNote{
+					{
+						UserId:      int32(notes[0].UserId),
+						ClassroomId: int32(notes[0].ClassroomId),
+						DocumentId:  int32(notes[0].DocumentId),
+					},
+					{
+						UserId:      int32(notes[1].UserId),
+						ClassroomId: int32(notes[1].ClassroomId),
+						DocumentId:  int32(notes[1].DocumentId),
+					}},
+			}
+
+			mock.ExpectExec("INSERT INTO notes").
+				WithArgs(notes[0].UserId, notes[0].ClassroomId, notes[0].DocumentId, notes[1].UserId, notes[1].ClassroomId, notes[1].DocumentId).
+				WillReturnResult(sqlmock.NewResult(0, 2))
+
+			multiCreateNotesV1Response, err = grpcApi.MultiCreateNotesV1(ctx, multiCreateNotesV1Request)
+		})
+
+		It("successful multi creation of a notes in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(multiCreateNotesV1Response.NumberOfNotesCreated).Should(Equal(uint64(len(notes))))
+		})
+	})
+
+	Context("update note with invalid arguments", func() {
+
+		BeforeEach(func() {
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      -1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
+			}
+
+			// setting the wait for the mock request is not required,
+			// since the error will return earlier due to invalid arguments
+
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
+		})
+
+		It("failed note updating due to invalid arguments", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(updateNoteV1Response).Should(BeNil())
+		})
+	})
+
+	Context("unsuccessful note updating", func() {
+
+		BeforeEach(func() {
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
+			}
+
+			mock.ExpectExec("UPDATE notes").
+				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
+				WillReturnError(errors.New("failed to execute sql request"))
+
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
+		})
+
+		It("failed to execute sql request", func() {
+			Expect(err).ShouldNot(BeNil())
+			Expect(updateNoteV1Response).Should(BeNil())
+		})
+	})
+
+	Context("update note", func() {
+
+		BeforeEach(func() {
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
+			}
+
+			mock.ExpectExec("UPDATE notes").
+				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
+				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any())
+
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
+		})
+
+		It("successful updating of a note in the database", func() {
+			Expect(err).Should(BeNil())
+			Expect(updateNoteV1Response.Found).Should(Equal(true))
+		})
+	})
+
 	Context("describe note with invalid arguments", func() {
 
-		var id uint64 = 1
+		var id int64 = 1
 
 		BeforeEach(func() {
 			describeRequest = &desc.DescribeNoteV1Request{
-				NoteId: int64(id),
+				NoteId: id,
 			}
 
 			// setting the wait for the mock request is not required,
@@ -157,11 +333,11 @@ var _ = Describe("Api", func() {
 
 	Context("unsuccessful receipt of the description of the note", func() {
 
-		var id uint64 = 1
+		var id int64 = 1
 
 		BeforeEach(func() {
 			describeRequest = &desc.DescribeNoteV1Request{
-				NoteId: int64(id),
+				NoteId: id,
 			}
 
 			mock.ExpectQuery("SELECT (.+) FROM notes WHERE").
@@ -202,10 +378,10 @@ var _ = Describe("Api", func() {
 
 		It("successful receipt of the note description", func() {
 			Expect(err).Should(BeNil())
-			Expect(describeResponse.Note.Id).Should(Equal(id))
-			Expect(describeResponse.Note.UserId).Should(Equal(user_id))
-			Expect(describeResponse.Note.ClassroomId).Should(Equal(classroom_id))
-			Expect(describeResponse.Note.DocumentId).Should(Equal(document_id))
+			Expect(describeResponse.Note.Id).Should(Equal(int64(id)))
+			Expect(describeResponse.Note.UserId).Should(Equal(int32(user_id)))
+			Expect(describeResponse.Note.ClassroomId).Should(Equal(int32(classroom_id)))
+			Expect(describeResponse.Note.DocumentId).Should(Equal(int32(document_id)))
 		})
 	})
 
@@ -285,15 +461,15 @@ var _ = Describe("Api", func() {
 
 		It("successful retrieval of the list of notes", func() {
 			Expect(err).Should(BeNil())
-			Expect(listNotesV1Response.Notes[0].Id).Should(Equal(notes[0].Id))
-			Expect(listNotesV1Response.Notes[0].UserId).Should(Equal(notes[0].UserId))
-			Expect(listNotesV1Response.Notes[0].ClassroomId).Should(Equal(notes[0].ClassroomId))
-			Expect(listNotesV1Response.Notes[0].DocumentId).Should(Equal(notes[0].DocumentId))
+			Expect(listNotesV1Response.Notes[0].Id).Should(Equal(int64(notes[0].Id)))
+			Expect(listNotesV1Response.Notes[0].UserId).Should(Equal(int32(notes[0].UserId)))
+			Expect(listNotesV1Response.Notes[0].ClassroomId).Should(Equal(int32(notes[0].ClassroomId)))
+			Expect(listNotesV1Response.Notes[0].DocumentId).Should(Equal(int32(notes[0].DocumentId)))
 
-			Expect(listNotesV1Response.Notes[1].Id).Should(Equal(notes[1].Id))
-			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(notes[1].UserId))
-			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(notes[1].ClassroomId))
-			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(notes[1].DocumentId))
+			Expect(listNotesV1Response.Notes[1].Id).Should(Equal(int64(notes[1].Id)))
+			Expect(listNotesV1Response.Notes[1].UserId).Should(Equal(int32(notes[1].UserId)))
+			Expect(listNotesV1Response.Notes[1].ClassroomId).Should(Equal(int32(notes[1].ClassroomId)))
+			Expect(listNotesV1Response.Notes[1].DocumentId).Should(Equal(int32(notes[1].DocumentId)))
 		})
 	})
 
@@ -346,6 +522,8 @@ var _ = Describe("Api", func() {
 			mock.ExpectExec("DELETE FROM notes").
 				WithArgs(removeNoteV1Request.NoteId).
 				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any())
 
 			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
 		})

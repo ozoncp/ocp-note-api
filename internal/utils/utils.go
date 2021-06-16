@@ -36,7 +36,7 @@ func SplitSlice(data []uint, batchSize int) [][]uint {
 	return sliceOfBatches
 }
 
-func SplitNoteSlice(data []note.Note, batchSize int) [][]note.Note {
+func SplitNoteSlice(data []note.Note, batchSize uint32) [][]note.Note {
 
 	if batchSize <= 0 || data == nil {
 		return nil
@@ -44,16 +44,16 @@ func SplitNoteSlice(data []note.Note, batchSize int) [][]note.Note {
 
 	var numberOfBatches int
 
-	if len(data)%batchSize == 0 {
-		numberOfBatches = len(data) / batchSize
+	if len(data)%int(batchSize) == 0 {
+		numberOfBatches = len(data) / int(batchSize)
 	} else {
-		numberOfBatches = len(data)/batchSize + 1
+		numberOfBatches = len(data)/int(batchSize) + 1
 	}
 
 	sliceOfBatches := make([][]note.Note, 0, numberOfBatches)
 
 	for i := 0; i < len(data); {
-		end := i + batchSize
+		end := i + int(batchSize)
 
 		if end > len(data) {
 			end = len(data)
