@@ -2,6 +2,11 @@
 
 Note API for Ozon Code Platform
 
+# Сборка и запуск сервиса и его окружения
+
+
+https://user-images.githubusercontent.com/13212921/122275099-fe0f8b00-ceeb-11eb-9843-394ccc5b558c.mp4
+
 # Ручки сервиса
 ## CreateNoteV1
 Добавляет заметку в базу данных, присваивая ей определенный `Id`.
