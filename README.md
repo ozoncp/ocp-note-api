@@ -1,6 +1,5 @@
-# ocp-note-api
-
-Note API for Ozon Code Platform
+# Note API for Ozon Code Platform
+[![Build & Test](https://github.com/ozoncp/ocp-note-api/actions/workflows/golangci-lint.yml/badge.svg?branch=main)](https://github.com/ozoncp/ocp-note-api/actions/workflows/go.yml)
 
 # Сборка и запуск сервиса и его окружения
 
