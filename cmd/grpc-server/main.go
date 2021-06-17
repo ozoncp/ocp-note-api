@@ -63,7 +63,7 @@ func run() error {
 	}
 
 	repo := repo.New(*db, chunkSize)
-	dataProducer, err := producer.New(ctx, cfg.Kafka.Topic)
+	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
@@ -121,7 +121,7 @@ func main() {
 
 	var err error
 
-	cfg, err = config.Read("config.yml")
+	cfg, err = config.Read("../../config.yml")
 
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to open configuration file")

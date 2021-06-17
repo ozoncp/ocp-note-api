@@ -14,8 +14,6 @@ type Producer interface {
 	Send(message Message) error
 }
 
-var brockerAddress = []string{"127.0.0.1:9092"}
-
 type producer struct {
 	dataProducer sarama.SyncProducer
 	topic        string
@@ -35,13 +33,13 @@ type Message struct {
 	Body  map[string]interface{}
 }
 
-func New(ctx context.Context, topic string) (Producer, error) {
+func New(ctx context.Context, addresses []string, topic string) (Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer_, err := sarama.NewSyncProducer(brockerAddress, config)
+	producer_, err := sarama.NewSyncProducer(addresses, config)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")

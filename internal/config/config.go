@@ -32,7 +32,8 @@ type Metrics struct {
 }
 
 type Kafka struct {
-	Topic string `yaml:"topic"`
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
 }
 
 type Getway struct {

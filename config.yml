@@ -20,7 +20,9 @@ metrics :
   path : "/metrics"
 
 kafka:
-  topic : "notes"
+  host: "localhost"
+  brokers:
+  - ":9092"
 
 getway:
   address : ":8080"
