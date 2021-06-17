@@ -44,7 +44,7 @@ func run() error {
 
 	grpcServer := grpc.NewServer()
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
 		cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name, cfg.Database.SslMode)
 
 	db, err := sqlx.Open(cfg.Database.Driver, psqlInfo)
