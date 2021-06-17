@@ -1,5 +1,7 @@
 # Note API for Ozon Code Platform
-[![Linter](https://github.com/ozoncp/ocp-note-api/actions/workflows/golangci-lint.yml/badge.svg?branch=improvement)](https://github.com/ozoncp/ocp-note-api/actions/workflows/golangci-lint.yml) [![Build and Test](https://github.com/ozoncp/ocp-note-api/actions/workflows/go.yml/badge.svg?branch=improvement)](https://github.com/ozoncp/ocp-note-api/actions/workflows/go.yml)
+
+[![Linter Actions Status](https://github.com/ozoncp/ocp-note-api/workflows/golangci-lint/badge.svg)](https://github.com/ozoncp/ocp-note-api/actions)
+[![Go Actions Status](https://github.com/ozoncp/ocp-note-api/workflows/Go/badge.svg)](https://github.com/ozoncp/ocp-note-api/actions)
 
 # Сборка и запуск сервиса и его окружения
 
