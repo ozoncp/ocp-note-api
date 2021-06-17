@@ -1,6 +1,26 @@
-project: "Note API"
-version: "0.0.2"
-author: "Oleg Kozyrev"
-http_port: ":7000"
-grpc_port: ":7002"
-swagger_dir: "swagger"
+project: 
+  name : "Note API"
+  author: "Oleg Kozyrev"
+  version: "0.0.1"
+
+grpc:
+  address: ":82"
+
+database :
+  host: "localhost"
+  port : "5432"
+  user : "postgres"
+  password : "postgres"
+  database : "postgres"
+  sslmode : "disable"
+  driver : "pgx"
+
+metrics :
+  address : ":9100"
+  path : "/metrics"
+
+kafka:
+  topic : "notes"
+
+getway:
+  address : ":8080"
