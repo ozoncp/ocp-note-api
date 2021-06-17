@@ -2,7 +2,7 @@ name: Build and test
 
 on:
   push:
-    branches: [ main, homework* ]
+    branches: [ main, improvement, task* ]
   pull_request:
     branches: [ main ]
 
