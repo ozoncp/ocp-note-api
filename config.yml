@@ -10,7 +10,7 @@ database :
   host: "localhost"
   port : "5432"
   user : "postgres"
-  password : "postgres"
+  password : "inferno04"
   database : "postgres"
   sslmode : "disable"
   driver : "pgx"
@@ -20,9 +20,10 @@ metrics :
   path : "/metrics"
 
 kafka:
-  host: "localhost"
+  topic: "notes"
   brokers:
   - ":9092"
+  capacity: 512
 
 getway:
-  address : ":8080"
+  address : ":8081"

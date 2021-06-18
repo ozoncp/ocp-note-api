@@ -33,7 +33,7 @@ type Message struct {
 	Body  map[string]interface{}
 }
 
-func New(ctx context.Context, addresses []string, topic string) (Producer, error) {
+func New(ctx context.Context, addresses []string, topic string, capacity uint64) (Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
@@ -49,7 +49,7 @@ func New(ctx context.Context, addresses []string, topic string) (Producer, error
 	newProducer := &producer{
 		dataProducer: producer_,
 		topic:        topic,
-		messageChan:  make(chan *sarama.ProducerMessage),
+		messageChan:  make(chan *sarama.ProducerMessage, capacity),
 	}
 
 	go newProducer.handleMessage(ctx)

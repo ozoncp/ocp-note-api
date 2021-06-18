@@ -63,7 +63,7 @@ func run() error {
 	}
 
 	repo := repo.New(*db, chunkSize)
-	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic)
+	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
