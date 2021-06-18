@@ -96,12 +96,11 @@ func (mr *MockRepoMockRecorder) MultiAddNotes(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // RemoveNote mocks base method.
-func (m *MockRepo) RemoveNote(arg0 context.Context, arg1 uint64) (error, bool) {
+func (m *MockRepo) RemoveNote(arg0 context.Context, arg1 uint64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveNote", arg0, arg1)
 	ret0, _ := ret[0].(error)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
+	return ret0
 }
 
 // RemoveNote indicates an expected call of RemoveNote.
@@ -111,12 +110,11 @@ func (mr *MockRepoMockRecorder) RemoveNote(arg0, arg1 interface{}) *gomock.Call 
 }
 
 // UpdateNote mocks base method.
-func (m *MockRepo) UpdateNote(arg0 context.Context, arg1 *note.Note) (error, bool) {
+func (m *MockRepo) UpdateNote(arg0 context.Context, arg1 *note.Note) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateNote", arg0, arg1)
 	ret0, _ := ret[0].(error)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
+	return ret0
 }
 
 // UpdateNote indicates an expected call of UpdateNote.
