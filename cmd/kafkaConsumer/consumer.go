@@ -5,9 +5,12 @@ import (
 	"fmt"
 
 	"github.com/Shopify/sarama"
+	"github.com/ozoncp/ocp-note-api/internal/config"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
 	"github.com/rs/zerolog/log"
 )
+
+var cfg *config.Config
 
 func subscribe(topic string, consumer sarama.Consumer) error {
 	partitionList, err := consumer.Partitions(topic) //get all partitions on the given topic
@@ -44,16 +47,26 @@ func messageReceived(message *sarama.ConsumerMessage) {
 	log.Info().Msgf("Message: %v", msg.Body)
 }
 
-var brokers = []string{"127.0.0.1:9092"}
-
 func main() {
-	consumer, err := sarama.NewConsumer(brokers, nil)
+
+	var err error
+
+	cfg, err = config.Read("../../config.yml")
+
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to open configuration file")
+		return
+	}
+
+	consumer, err := sarama.NewConsumer(cfg.Kafka.Brokers, nil)
 
 	if err != nil {
 		log.Fatal().Msgf("NewConsumer error: %v", err)
 	}
 
-	err = subscribe("noteTopic", consumer)
+	log.Info().Msgf("awaiting messages from Kafka ...")
+
+	err = subscribe(cfg.Kafka.Topic, consumer)
 
 	if err != nil {
 		log.Fatal().Msgf("Subscribe failed: %v", err)
