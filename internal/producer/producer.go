@@ -68,6 +68,7 @@ func (dProducer *producer) handleMessage(ctx context.Context) {
 			}
 		case <-ctx.Done():
 			close(dProducer.messageChan)
+			dProducer.dataProducer.Close()
 			return
 		}
 	}
