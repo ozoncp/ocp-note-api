@@ -65,6 +65,9 @@ func (dProducer *producer) handleMessage(ctx context.Context) {
 
 			if err != nil {
 				log.Error().Msgf("failed to send message to kafka: %v", err)
+				log.Error().Msgf("retry ...")
+
+				dProducer.messageChan <- msg
 			}
 		case <-ctx.Done():
 			close(dProducer.messageChan)
