@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"unsafe"
 
@@ -15,15 +16,17 @@ import (
 type Repo interface {
 	AddNote(ctx context.Context, note *note.Note) (uint64, error)
 	MultiAddNotes(ctx context.Context, notes []note.Note) (uint64, error)
-	UpdateNote(ctx context.Context, notes *note.Note) (error, bool)
+	UpdateNote(ctx context.Context, notes *note.Note) error
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
 	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
-	RemoveNote(ctx context.Context, id uint64) (error, bool)
+	RemoveNote(ctx context.Context, id uint64) error
 }
 
 const (
 	tableName = "notes"
 )
+
+var ErrorNotFound error = errors.New("note not found")
 
 type repo struct {
 	db        sqlx.DB
@@ -106,7 +109,7 @@ func (r *repo) MultiAddNotes(ctx context.Context, notes []note.Note) (uint64, er
 	return uint64(numberOfNotesCreated), nil
 }
 
-func (r *repo) UpdateNote(ctx context.Context, note *note.Note) (error, bool) {
+func (r *repo) UpdateNote(ctx context.Context, note *note.Note) error {
 	query := sq.Update(tableName).
 		Set("user_id", note.UserId).
 		Set("classroom_id", note.ClassroomId).
@@ -118,20 +121,20 @@ func (r *repo) UpdateNote(ctx context.Context, note *note.Note) (error, bool) {
 	result, err := query.ExecContext(ctx)
 
 	if err != nil {
-		return err, false
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		return err, false
+		return err
 	}
 
 	if rowsAffected <= 0 {
-		return nil, false
+		return ErrorNotFound
 	}
 
-	return nil, true
+	return nil
 }
 
 func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) {
@@ -180,7 +183,7 @@ func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note
 	return notes, nil
 }
 
-func (r *repo) RemoveNote(ctx context.Context, id uint64) (error, bool) {
+func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 	query := sq.Delete(tableName).
 		Where(sq.Eq{"id": id}).
 		RunWith(r.db).
@@ -189,18 +192,18 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) (error, bool) {
 	result, err := query.ExecContext(ctx)
 
 	if err != nil {
-		return err, false
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		return err, false
+		return err
 	}
 
 	if rowsAffected <= 0 {
-		return nil, false
+		return ErrorNotFound
 	}
 
-	return nil, true
+	return nil
 }
