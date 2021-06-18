@@ -15,6 +15,7 @@ import (
 
 	api "github.com/ozoncp/ocp-note-api/core/api"
 	"github.com/ozoncp/ocp-note-api/core/repo"
+	"github.com/ozoncp/ocp-note-api/internal/config"
 	"github.com/ozoncp/ocp-note-api/internal/metrics"
 	"github.com/ozoncp/ocp-note-api/internal/producer"
 	"github.com/ozoncp/ocp-note-api/internal/tracer"
@@ -25,38 +26,28 @@ import (
 )
 
 const (
-	grpcPort  = ":82"
-	httpPort  = ":8080"
-	promPort  = ":9100"
 	chunkSize = 2
-
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "inferno04"
-	dbname   = "testdb"
-
-	topic = "noteTopic"
 )
+
+var cfg *config.Config
 
 func run() error {
 	ctx := context.Background()
 
-	listen, err := net.Listen("tcp", grpcPort)
+	listen, err := net.Listen("tcp", cfg.Grpc.Address)
 
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to listen: %v", err)
 	}
 
-	log.Info().Msgf("Starting server at localhost%v...", grpcPort)
+	log.Info().Msgf("Starting server at localhost%v...", cfg.Grpc.Address)
 
 	grpcServer := grpc.NewServer()
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	psqlInfo := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v",
+		cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.Name, cfg.Database.SslMode)
 
-	db, err := sqlx.Open("pgx", psqlInfo)
+	db, err := sqlx.Open(cfg.Database.Driver, psqlInfo)
 
 	if err != nil {
 		log.Error().Err(err).Msgf("failed to create connect to database")
@@ -72,7 +63,7 @@ func run() error {
 	}
 
 	repo := repo.New(*db, chunkSize)
-	dataProducer, err := producer.New(ctx, topic)
+	dataProducer, err := producer.New(ctx, cfg.Kafka.Brokers, cfg.Kafka.Topic, cfg.Kafka.Capacity)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
@@ -92,7 +83,7 @@ func run() error {
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	group.Go(func() error {
-		if err := note.RegisterOcpNoteApiHandlerFromEndpoint(ctx, gwmux, grpcPort, opts); err != nil {
+		if err := note.RegisterOcpNoteApiHandlerFromEndpoint(ctx, gwmux, cfg.Grpc.Address, opts); err != nil {
 			log.Error().Msgf("register gateway fails: %v", err)
 			return err
 		}
@@ -100,8 +91,8 @@ func run() error {
 		mux := http.NewServeMux()
 		mux.Handle("/", gwmux)
 
-		log.Info().Msgf("http server listening on %s", httpPort)
-		if err = http.ListenAndServe(httpPort, mux); err != nil {
+		log.Info().Msgf("http server listening on %s", cfg.Getway.Address)
+		if err = http.ListenAndServe(cfg.Getway.Address, mux); err != nil {
 			log.Error().Msgf("http gateway server fails: %v", err)
 			return err
 		}
@@ -112,10 +103,10 @@ func run() error {
 	group.Go(func() error {
 		metrics.RegisterMetrics()
 
-		http.Handle("/metrics", promhttp.Handler())
-		log.Info().Msgf("metrics (http) listening on %s", promPort)
+		http.Handle(cfg.Metrics.Path, promhttp.Handler())
+		log.Info().Msgf("metrics (http) listening on %s", cfg.Metrics.Address)
 
-		if err = http.ListenAndServe(promPort, nil); err != nil {
+		if err = http.ListenAndServe(cfg.Metrics.Address, nil); err != nil {
 			log.Error().Msgf("metrics (http) server fails: %v", err)
 			return err
 		}
@@ -127,9 +118,20 @@ func run() error {
 }
 
 func main() {
+
+	var err error
+
+	cfg, err = config.Read("../../config.yml")
+
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to open configuration file")
+		return
+	}
+
 	tracer.InitTracing("ocp_note_api")
 
 	if err := run(); err != nil {
 		log.Fatal().Err(err).Msgf("failed to create grpc server")
+		return
 	}
 }

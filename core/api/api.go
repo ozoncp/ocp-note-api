@@ -11,6 +11,8 @@ import (
 	desc "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type api struct {
@@ -35,7 +37,7 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note := &note.Note{
@@ -48,7 +50,7 @@ func (a *api) CreateNoteV1(ctx context.Context, request *desc.CreateNoteV1Reques
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create note")
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Create note success (id: %d)", noteId)
@@ -70,7 +72,7 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	var notes []note.Note
@@ -90,7 +92,7 @@ func (a *api) MultiCreateNotesV1(ctx context.Context, request *desc.MultiCreateN
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to multi create notes")
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	log.Info().Msgf("Multi create notes success")
@@ -105,7 +107,7 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note := &note.Note{
@@ -115,21 +117,28 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 		DocumentId:  uint32(request.Note.DocumentId),
 	}
 
-	if err := a.repo.UpdateNote(ctx, note); err != nil {
+	err, found := a.repo.UpdateNote(ctx, note)
+
+	if err != nil {
 		log.Error().Err(err).Msg("failed to update note")
-		return &desc.UpdateNoteV1Response{Found: false}, nil
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if !found {
+		log.Error().Err(err).Msg("not found note")
+		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)
 
 	message := producer.CreateMessage(producer.Update, note.Id, time.Now())
-	err := a.dataProducer.Send(message)
+	err = a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about updating a note to kafka: %v", err)
 	}
 
-	metrics.CreateCounterInc("Update")
+	metrics.UpdateCounterInc("Update")
 
 	return &desc.UpdateNoteV1Response{Found: true}, nil
 }
@@ -139,14 +148,14 @@ func (a *api) DescribeNoteV1(ctx context.Context, request *desc.DescribeNoteV1Re
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	note, err := a.repo.DescribeNote(ctx, uint64(request.NoteId))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get description note")
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	log.Info().Msg("Desribe note success")
@@ -166,14 +175,14 @@ func (a *api) ListNotesV1(ctx context.Context, request *desc.ListNotesV1Request)
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	notes, err := a.repo.ListNotes(ctx, uint64(request.Limit), uint64(request.Offset))
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get notes")
-		return nil, err
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
 	var notesProto []*desc.Note
@@ -199,24 +208,31 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 
 	if err := request.Validate(); err != nil {
 		log.Error().Err(err).Msg("invalid argument")
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
+	err, found := a.repo.RemoveNote(ctx, uint64(request.NoteId))
+
+	if err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
-		return &desc.RemoveNoteV1Response{Found: false}, nil
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if !found {
+		log.Error().Err(err).Msg("not found note")
+		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
 
 	message := producer.CreateMessage(producer.Remove, uint64(request.NoteId), time.Now())
-	err := a.dataProducer.Send(message)
+	err = a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about deleting a note to kafka: %v", err)
 	}
 
-	metrics.CreateCounterInc("Remove")
+	metrics.RemoveCounterInc("Remove")
 
 	return &desc.RemoveNoteV1Response{Found: true}, nil
 }

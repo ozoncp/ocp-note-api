@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"unsafe"
 
@@ -16,10 +15,10 @@ import (
 type Repo interface {
 	AddNote(ctx context.Context, note *note.Note) (uint64, error)
 	MultiAddNotes(ctx context.Context, notes []note.Note) (uint64, error)
-	UpdateNote(ctx context.Context, notes *note.Note) error
+	UpdateNote(ctx context.Context, notes *note.Note) (error, bool)
 	DescribeNote(ctx context.Context, id uint64) (*note.Note, error)
 	ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note, error)
-	RemoveNote(ctx context.Context, id uint64) error
+	RemoveNote(ctx context.Context, id uint64) (error, bool)
 }
 
 const (
@@ -107,7 +106,7 @@ func (r *repo) MultiAddNotes(ctx context.Context, notes []note.Note) (uint64, er
 	return uint64(numberOfNotesCreated), nil
 }
 
-func (r *repo) UpdateNote(ctx context.Context, note *note.Note) error {
+func (r *repo) UpdateNote(ctx context.Context, note *note.Note) (error, bool) {
 	query := sq.Update(tableName).
 		Set("user_id", note.UserId).
 		Set("classroom_id", note.ClassroomId).
@@ -119,20 +118,20 @@ func (r *repo) UpdateNote(ctx context.Context, note *note.Note) error {
 	result, err := query.ExecContext(ctx)
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	if rowsAffected <= 0 {
-		return errors.New("not found note")
+		return nil, false
 	}
 
-	return nil
+	return nil, true
 }
 
 func (r *repo) DescribeNote(ctx context.Context, id uint64) (*note.Note, error) {
@@ -181,7 +180,7 @@ func (r *repo) ListNotes(ctx context.Context, limit, offset uint64) ([]note.Note
 	return notes, nil
 }
 
-func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
+func (r *repo) RemoveNote(ctx context.Context, id uint64) (error, bool) {
 	query := sq.Delete(tableName).
 		Where(sq.Eq{"id": id}).
 		RunWith(r.db).
@@ -190,18 +189,18 @@ func (r *repo) RemoveNote(ctx context.Context, id uint64) error {
 	result, err := query.ExecContext(ctx)
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	rowsAffected, err := result.RowsAffected()
 
 	if err != nil {
-		return err
+		return err, false
 	}
 
 	if rowsAffected <= 0 {
-		return errors.New("not found note")
+		return nil, false
 	}
 
-	return nil
+	return nil, true
 }
