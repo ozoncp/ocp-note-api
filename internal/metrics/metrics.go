@@ -1,6 +1,9 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
 
 var (
 	createCounter *prometheus.CounterVec
@@ -9,30 +12,24 @@ var (
 )
 
 func RegisterMetrics() {
-	createCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "create_count",
-			Help: "Number of successful created projects.",
-		},
-		[]string{"operation"},
-	)
-	updateCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "update_count",
-			Help: "Number of successful updated projects.",
-		},
-		[]string{"operation"},
-	)
-	removeCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "remove_count",
-			Help: "Number of successful removed projects.",
-		},
-		[]string{"operation"},
-	)
 
-	// must register counter on init
-	prometheus.MustRegister(createCounter, updateCounter, removeCounter)
+	createCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "create_count",
+		Help: "Number of successful created notes.",
+	},
+		[]string{"operation"})
+
+	updateCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "update_count",
+		Help: "Number of successful updated notes.",
+	},
+		[]string{"operation"})
+
+	removeCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "remove_count",
+		Help: "Number of successful removed notes.",
+	},
+		[]string{"operation"})
 }
 
 func CreateCounterInc(operation string) {

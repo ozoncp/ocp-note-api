@@ -14,8 +14,6 @@ type Producer interface {
 	Send(message Message) error
 }
 
-var brockerAddress = []string{"kafka:9092"}
-
 type producer struct {
 	dataProducer sarama.SyncProducer
 	topic        string
@@ -35,13 +33,13 @@ type Message struct {
 	Body  map[string]interface{}
 }
 
-func New(ctx context.Context, topic string) (Producer, error) {
+func New(ctx context.Context, addresses []string, topic string, capacity uint64) (Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer_, err := sarama.NewSyncProducer(brockerAddress, config)
+	producer_, err := sarama.NewSyncProducer(addresses, config)
 
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create a producer")
@@ -51,7 +49,7 @@ func New(ctx context.Context, topic string) (Producer, error) {
 	newProducer := &producer{
 		dataProducer: producer_,
 		topic:        topic,
-		messageChan:  make(chan *sarama.ProducerMessage),
+		messageChan:  make(chan *sarama.ProducerMessage, capacity),
 	}
 
 	go newProducer.handleMessage(ctx)
@@ -60,16 +58,22 @@ func New(ctx context.Context, topic string) (Producer, error) {
 }
 
 func (dProducer *producer) handleMessage(ctx context.Context) {
-	select {
-	case msg := <-dProducer.messageChan:
-		_, _, err := dProducer.dataProducer.SendMessage(msg)
+	for {
+		select {
+		case msg := <-dProducer.messageChan:
+			_, _, err := dProducer.dataProducer.SendMessage(msg)
 
-		if err != nil {
-			log.Error().Msgf("failed to send message to kafka: %v", err)
+			if err != nil {
+				log.Error().Msgf("failed to send message to kafka: %v", err)
+				log.Error().Msgf("retry ...")
+
+				dProducer.messageChan <- msg
+			}
+		case <-ctx.Done():
+			close(dProducer.messageChan)
+			dProducer.dataProducer.Close()
+			return
 		}
-	case <-ctx.Done():
-		close(dProducer.messageChan)
-		return
 	}
 }
 
