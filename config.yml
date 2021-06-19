@@ -22,7 +22,7 @@ metrics :
 kafka:
   topic: "notes"
   brokers:
-  - ":9092"
+  - "kafka:9092"
   capacity: 512
 
 getway:
