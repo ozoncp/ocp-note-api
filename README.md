@@ -6,5 +6,6 @@
 Ocp-note-api - это микросервис, который служит для создания, чтения и удаление заметок, в рамках образовательной платформы **Ozon Code**. Более подробную информацию о сервисе читайте в Wiki проекта: https://github.com/ozoncp/ocp-note-api/wiki
 
 ### Быстрый старт
+https://user-images.githubusercontent.com/13212921/122645456-51b7e980-d123-11eb-8116-44fb1ab5ba6d.mp4
 
-https://user-images.githubusercontent.com/13212921/122275099-fe0f8b00-ceeb-11eb-9843-394ccc5b558c.mp4
+
