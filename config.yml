@@ -4,14 +4,14 @@ project:
   version: "0.0.1"
 
 grpc:
-  address: ":82"
+  address: ":7002"
 
 database :
-  host: "localhost"
+  host: "database"
   port : "5432"
-  user : "postgres"
-  password : "inferno04"
-  database : "postgres"
+  user : "best_user"
+  password : "best_password"
+  database : "ocp_note_api"
   sslmode : "disable"
   driver : "pgx"
 
@@ -22,7 +22,7 @@ metrics :
 kafka:
   topic: "notes"
   brokers:
-  - ":9092"
+  - "kafka:9092"
   capacity: 512
 
 getway:
