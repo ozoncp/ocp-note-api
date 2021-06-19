@@ -25,7 +25,7 @@ services:
 
 
   database:
-    build: ./docker_files/database/postgres
+    build: ./third_party/docker_files/database/postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
