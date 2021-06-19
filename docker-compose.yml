@@ -27,8 +27,6 @@ services:
   database:
     image: postgres
     restart: always
-    # volumes:
-    #   - postgres_database:/var/lib/postgresql/data:Z
     environment:
       POSTGRES_PASSWORD: postgres
 
@@ -45,6 +43,7 @@ services:
     build: .
     ports:
       - "7002:7002"
+      - "9100:9100"
     restart: unless-stopped
     depends_on:
       - database
@@ -52,8 +51,3 @@ services:
     links: 
       - database
       - kafka
-
-
-# volumes:
-#   postgres_database:
-#     external: true
