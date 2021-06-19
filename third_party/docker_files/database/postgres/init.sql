@@ -2,7 +2,6 @@ CREATE DATABASE ocp_note_api;
 CREATE USER best_user WITH PASSWORD 'best_password';
 GRANT all privileges ON DATABASE ocp_note_api TO best_user;
 
--- \CONNECT ocp_note_api
 \c ocp_note_api best_user
 
 CREATE TABLE notes (
