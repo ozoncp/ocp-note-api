@@ -8,42 +8,42 @@ package ocp.note.api;
 option go_package = "github.com/ozoncp/ocp-note-api/pkg/ocp-note-api;ocp_note_api";
 
 service OcpNoteApi {
-    // Create note
+    // Adds a note to the database, giving it a specific Id.
     rpc CreateNoteV1(CreateNoteV1Request) returns (CreateNoteV1Response) {
         option (google.api.http) = {
             post: "/v1/note"
         };
     }
 
-    // Multi create notes
+    // Adds several notes to the database at once, assigning certain Id to them.
     rpc MultiCreateNotesV1(MultiCreateNotesV1Request) returns (MultiCreateNotesV1Response) {
         option (google.api.http) = {
             post: "/v1/notes"
         };
     }
 
-    // Update note
+    // Refreshes the data for the specified note.
     rpc UpdateNoteV1(UpdateNoteV1Request) returns (UpdateNoteV1Response) {
         option (google.api.http) = {
             post: "/v1/note"
         };
     }
 
-    // Describe note
+    // Provides information (UserId, ClassroomId, `DocumentId) about the specified note.
     rpc DescribeNoteV1(DescribeNoteV1Request) returns (DescribeNoteV1Response) {
         option (google.api.http) = {
             get: "/v1/notes/{note_id}"
         };
     }
 
-    // List notes
+    // Returns the specified number of notes starting at the specified indentation.
     rpc ListNotesV1(ListNotesV1Request) returns (ListNotesV1Response) {
         option (google.api.http) = {
             get: "/v1/notes"
         };
     }
 
-    // Remove note
+    // Deletes the specified note.
     rpc RemoveNoteV1(RemoveNoteV1Request) returns (RemoveNoteV1Response) {
         option (google.api.http) = {
             delete: "/v1/notes/{note_id}"
