@@ -21,6 +21,7 @@ PHONY: .generate
 PHONY: .build
 .build:
 		CGO_ENABLED=0 GOOS=linux go build -o bin/ocp-note-api cmd/grpc-server/main.go
+		CGO_ENABLED=0 GOOS=linux go build -o bin/kafkaConsumer cmd/kafkaConsumer/consumer.go
 
 PHONY: install
 install: build .install
