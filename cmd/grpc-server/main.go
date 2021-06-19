@@ -121,7 +121,7 @@ func main() {
 
 	var err error
 
-	cfg, err = config.Read("../../config.yml")
+	cfg, err = config.Read("config.yml")
 
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to open configuration file")
@@ -131,7 +131,7 @@ func main() {
 	tracer.InitTracing("ocp_note_api")
 
 	if err := run(); err != nil {
-		log.Fatal().Err(err).Msgf("failed to create grpc server")
+		log.Fatal().Err(err).Msgf("failed to run service")
 		return
 	}
 }
