@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/ozoncp/ocp-note-api/core/note"
@@ -117,22 +118,20 @@ func (a *api) UpdateNoteV1(ctx context.Context, request *desc.UpdateNoteV1Reques
 		DocumentId:  uint32(request.Note.DocumentId),
 	}
 
-	err, found := a.repo.UpdateNote(ctx, note)
+	if err := a.repo.UpdateNote(ctx, note); err != nil {
+		if errors.Is(err, repo.ErrorNotFound) {
+			log.Error().Err(err).Msg("note not found")
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 
-	if err != nil {
 		log.Error().Err(err).Msg("failed to update note")
 		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	if !found {
-		log.Error().Err(err).Msg("not found note")
-		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Update note (id: %d) success", request.Note.Id)
 
 	message := producer.CreateMessage(producer.Update, note.Id, time.Now())
-	err = a.dataProducer.Send(message)
+	err := a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about updating a note to kafka: %v", err)
@@ -211,22 +210,20 @@ func (a *api) RemoveNoteV1(ctx context.Context, request *desc.RemoveNoteV1Reques
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	err, found := a.repo.RemoveNote(ctx, uint64(request.NoteId))
+	if err := a.repo.RemoveNote(ctx, uint64(request.NoteId)); err != nil {
+		if errors.Is(err, repo.ErrorNotFound) {
+			log.Error().Err(err).Msg("note not found")
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 
-	if err != nil {
 		log.Error().Err(err).Msg("failed to remove note")
 		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	if !found {
-		log.Error().Err(err).Msg("not found note")
-		return nil, status.Error(codes.NotFound, "not found note")
 	}
 
 	log.Info().Msgf("Remove note (id: %d) success", request.NoteId)
 
 	message := producer.CreateMessage(producer.Remove, uint64(request.NoteId), time.Now())
-	err = a.dataProducer.Send(message)
+	err := a.dataProducer.Send(message)
 
 	if err != nil {
 		log.Warn().Msgf("failed to send message about deleting a note to kafka: %v", err)
