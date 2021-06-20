@@ -2,34 +2,34 @@ name: build-and-test
 
 on:
   push:
-    branches: [ main, improvement, task* ]
+    branches: [ main, dev ]
   pull_request:
     branches: [ main ]
 
 jobs:
-
-  build:
+  lint:
     strategy:
       matrix:
-        go-version: [1.15.x, 1.16.x]
-        os: [ubuntu-latest, windows-latest]
+        go-version: [1.16.x]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
+    - name: Install Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16
-
-    - name: Build
-      run: go build -v ./...
-      
+        go-version: ${{ matrix.go-version }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Run linters
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: latest
+        
   test:
-    needs: build
+    needs: lint
     strategy:
       matrix:
-        go-version: [1.15.x, 1.16.x]
+        go-version: [1.16.x]
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
