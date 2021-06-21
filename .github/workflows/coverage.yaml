@@ -2,7 +2,7 @@ name: coverage
 
 on:
   push:
-    branches: [ main, dev, tests ]
+    branches: [ main, dev ]
   pull_request:
     branches: [ main ]
 
