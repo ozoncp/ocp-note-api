@@ -73,3 +73,8 @@ install-go-deps: .install-go-deps
 		go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 		go install github.com/envoyproxy/protoc-gen-validate
 		go get github.com/fullstorydev/grpcui/...
+		
+.PHONY: coverage
+coverage:
+	go test -race -coverprofile="coverage.out" -covermode=atomic ./...
+	go tool cover -html="coverage.out"
