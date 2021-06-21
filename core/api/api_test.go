@@ -103,6 +103,32 @@ var _ = Describe("Api", func() {
 		})
 	})
 
+	Context("create a note with Kafka's faulty producer", func() {
+
+		var id uint64 = 1
+
+		BeforeEach(func() {
+			createRequest = &desc.CreateNoteV1Request{
+				UserId:      1,
+				ClassroomId: 1,
+				DocumentId:  1,
+			}
+
+			mock.ExpectQuery("INSERT INTO notes").
+				WithArgs(createRequest.UserId, createRequest.ClassroomId, createRequest.DocumentId).
+				WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+
+			dataProducerMock.EXPECT().Send(gomock.Any()).Return(errors.New("Kafka producer error"))
+
+			createResponse, err = grpcApi.CreateNoteV1(ctx, createRequest)
+		})
+
+		It("failure to create a note due to an error while writing a message to Kafka", func() {
+			Expect(err).Should(BeNil())
+			Expect(createResponse.NoteId).Should(Equal(id))
+		})
+	})
+
 	Context("unsuccessful note creation", func() {
 
 		BeforeEach(func() {
@@ -255,6 +281,33 @@ var _ = Describe("Api", func() {
 		It("failed note updating due to invalid arguments", func() {
 			Expect(err).ShouldNot(BeNil())
 			Expect(updateNoteV1Response).Should(BeNil())
+		})
+	})
+
+	Context("update a note with Kafka's faulty producer", func() {
+
+		BeforeEach(func() {
+			updateNoteV1Request = &desc.UpdateNoteV1Request{
+				Note: &desc.Note{
+					Id:          1,
+					UserId:      1,
+					ClassroomId: 10,
+					DocumentId:  20,
+				},
+			}
+
+			mock.ExpectExec("UPDATE notes").
+				WithArgs(updateNoteV1Request.Note.UserId, updateNoteV1Request.Note.ClassroomId, updateNoteV1Request.Note.DocumentId, updateNoteV1Request.Note.Id).
+				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any()).Return(errors.New("Kafka producer error"))
+
+			updateNoteV1Response, err = grpcApi.UpdateNoteV1(ctx, updateNoteV1Request)
+		})
+
+		It("failure to update a note due to an error while writing a message to Kafka", func() {
+			Expect(err).Should(BeNil())
+			Expect(updateNoteV1Response.Found).Should(Equal(true))
 		})
 	})
 
@@ -489,6 +542,28 @@ var _ = Describe("Api", func() {
 		It("failed note removal due to invalid arguments", func() {
 			Expect(err).ShouldNot(BeNil())
 			Expect(removeNoteV1Response).Should(BeNil())
+		})
+	})
+
+	Context("remove a note with Kafka's faulty producer", func() {
+
+		BeforeEach(func() {
+			removeNoteV1Request = &desc.RemoveNoteV1Request{
+				NoteId: 1,
+			}
+
+			mock.ExpectExec("DELETE FROM notes").
+				WithArgs(removeNoteV1Request.NoteId).
+				WillReturnResult(sqlmock.NewResult(0, 1))
+
+			dataProducerMock.EXPECT().Send(gomock.Any()).Return(errors.New("Kafka producer error"))
+
+			removeNoteV1Response, err = grpcApi.RemoveNoteV1(ctx, removeNoteV1Request)
+		})
+
+		It("failure to remove a note due to an error while writing a message to Kafka", func() {
+			Expect(err).Should(BeNil())
+			Expect(removeNoteV1Response.Found).Should(Equal(true))
 		})
 	})
 
